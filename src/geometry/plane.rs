@@ -35,7 +35,7 @@ impl Geometry for Plane {
         let light_vec = (light.position + light.direction).normalize();
         let product = ray_vec.dot(light_vec);
 
-        return self.color * product;
+        self.color * product
 
         // let mut plane_vectors = self.normal.any_orthonormal_pair();
         // plane_vectors.0 = self.position + plane_vectors.0 * self.scalar;

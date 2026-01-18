@@ -1,8 +1,8 @@
 use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
-use std::{cmp::Reverse, process};
+use std::process;
 
 use crate::{
-    geometry::{Geometry, actor::ActorWithGeometry, scene::Scene},
+    geometry::{Geometry, scene::Scene},
     rendering::{light::Light, ray_emitter::RayEmitter},
 };
 

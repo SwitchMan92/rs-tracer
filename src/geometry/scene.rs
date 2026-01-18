@@ -1,4 +1,3 @@
-use std::thread::current;
 
 use glam::Vec4;
 

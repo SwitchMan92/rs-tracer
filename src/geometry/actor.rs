@@ -1,5 +1,3 @@
-use std::cmp::Ordering;
-
 use glam::Vec3;
 
 use crate::geometry::Geometry;
