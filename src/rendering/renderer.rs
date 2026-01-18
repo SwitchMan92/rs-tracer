@@ -6,6 +6,7 @@ use crate::{
     rendering::{light::Light, ray_emitter::RayEmitter},
 };
 
+//// Structure in charge of managing the window and the window's render target.
 pub struct Renderer<'a> {
     window: Window,
     sdl_context: &'a Sdl,
@@ -30,6 +31,8 @@ impl<'a> Renderer<'a> {
         }
     }
 
+    /// Reorder the scene's objects using the depth of the camera (z-order),
+    /// then draw each object on the window surface, from the furthest to the nearest.
     pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, light: &Light) {
         scene.renderables.sort_by(|a, b| {
             (a.get_position() - ray_emitter.position)

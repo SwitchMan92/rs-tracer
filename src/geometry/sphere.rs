@@ -5,6 +5,7 @@ use crate::rendering::ray::Ray;
 
 use glam::{Vec3, Vec4};
 
+/// Structure used to represent a spherical renderable.
 pub struct Sphere {
     pub actor: Actor,
     pub radius: f32,
@@ -25,6 +26,7 @@ impl ActorTrait for Sphere {
 }
 
 impl Geometry for Sphere {
+    /// Check line-circle plain intersection and return the ray color post-interaction.
     fn collide(&self, ray: &Ray, light: &Light) -> Vec4 {
         const VOID: Vec4 = Vec4::new(0., 0., 0., 0.);
 

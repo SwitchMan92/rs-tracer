@@ -8,6 +8,7 @@ use crate::{
     rendering::ray::Ray,
 };
 
+/// Structure holding a given light's representation.
 #[derive(Clone)]
 pub struct Light {
     pub actor: Actor,
@@ -30,6 +31,7 @@ impl ActorTrait for Light {
 }
 
 impl Geometry for Light {
+    /// Render the light object as a sphere, mostly for scene's debugging purpose.
     fn collide(&self, ray: &Ray, light: &Light) -> Vec4 {
         const VOID: Vec4 = Vec4::new(0., 0., 0., 0.);
 

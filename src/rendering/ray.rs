@@ -1,6 +1,7 @@
 use glam::Vec3;
 use std::fmt;
 
+//// Structure holding a ray's geometric data.
 #[derive(Debug)]
 pub struct Ray {
     pub origin: Vec3,

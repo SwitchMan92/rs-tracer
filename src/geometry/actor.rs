@@ -2,12 +2,14 @@ use glam::Vec3;
 
 use crate::geometry::Geometry;
 
+/// base 'class' inherited by any object allowing interaction with the current scene.
 #[derive(Clone, Debug)]
 pub struct Actor {
     pub position: Vec3,
 }
 
 pub trait ActorTrait {
+    /// Get the actor's current position.
     fn get_position(&self) -> Vec3;
 }
 
@@ -23,4 +25,5 @@ impl Actor {
     }
 }
 
+/// Public trait mixin used to allow operations on geomerty and position simultaneously.
 pub trait ActorWithGeometry: Geometry + ActorTrait {}

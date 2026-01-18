@@ -4,6 +4,8 @@ use range2d::Range2D;
 use crate::geometry::actor::Actor;
 use crate::rendering::ray::Ray;
 
+/// Structure containing and managing an array of rays.
+/// Each ray is then associated to a pixel of the render target in the renderer class, at the projection stage.
 pub struct RayEmitter {
     actor: Actor,
     pub direction: Vec3,
@@ -20,6 +22,7 @@ impl std::ops::Deref for RayEmitter {
 }
 
 impl RayEmitter {
+    //// Declares and initializes the ray structures, given the screen's resolution.
     fn calculate_rays(&mut self) {
         if self.rays.len() == 0 {
             let screen_bottom: Vec3 = Vec3::new(
