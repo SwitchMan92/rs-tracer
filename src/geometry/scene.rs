@@ -1,11 +1,14 @@
+use std::thread::current;
+
 use glam::Vec4;
 
 use crate::geometry::Geometry;
+use crate::geometry::actor::ActorWithGeometry;
 use crate::rendering::light::Light;
 use crate::rendering::ray::Ray;
 
 pub struct Scene {
-    pub renderables: Vec<Box<dyn Geometry>>,
+    pub renderables: Vec<Box<dyn ActorWithGeometry>>,
 }
 
 impl Scene {
@@ -18,11 +21,15 @@ impl Scene {
 
 impl Geometry for Scene {
     fn collide(&self, ray: &Ray, light: &Light) -> Vec4 {
-        self.renderables
-            .iter()
-            .fold(Vec4::new(0., 0., 0., 0.), |acc, x| {
-                (acc + x.collide(ray, light))
-                    .clamp(Vec4::new(0., 0., 0., 0.), Vec4::new(255., 255., 255., 1.))
-            })
+        let mut result_color = Vec4::new(0., 0., 0., 0.);
+
+        self.renderables.iter().for_each(|x| {
+            let current_color = x.collide(ray, light);
+            if current_color != Vec4::new(0., 0., 0., 0.) {
+                result_color = current_color;
+            }
+        });
+
+        result_color
     }
 }

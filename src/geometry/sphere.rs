@@ -1,9 +1,9 @@
 use crate::geometry::Geometry;
-use crate::geometry::actor::Actor;
+use crate::geometry::actor::{Actor, ActorTrait, ActorWithGeometry};
 use crate::rendering::light::Light;
 use crate::rendering::ray::Ray;
 
-use glam::Vec4;
+use glam::{Vec3, Vec4};
 
 pub struct Sphere {
     pub actor: Actor,
@@ -15,6 +15,12 @@ impl std::ops::Deref for Sphere {
     type Target = Actor;
     fn deref(&self) -> &Self::Target {
         &self.actor
+    }
+}
+
+impl ActorTrait for Sphere {
+    fn get_position(&self) -> Vec3 {
+        self.position
     }
 }
 
@@ -52,6 +58,8 @@ impl Geometry for Sphere {
         }
     }
 }
+
+impl ActorWithGeometry for Sphere {}
 
 #[cfg(test)]
 mod tests {

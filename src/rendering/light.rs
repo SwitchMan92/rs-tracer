@@ -1,7 +1,10 @@
 use glam::{Vec3, Vec4};
 
 use crate::{
-    geometry::{Geometry, actor::Actor},
+    geometry::{
+        Geometry,
+        actor::{Actor, ActorTrait, ActorWithGeometry},
+    },
     rendering::ray::Ray,
 };
 
@@ -17,6 +20,12 @@ impl std::ops::Deref for Light {
     type Target = Actor;
     fn deref(&self) -> &Self::Target {
         &self.actor
+    }
+}
+
+impl ActorTrait for Light {
+    fn get_position(&self) -> Vec3 {
+        self.position
     }
 }
 
@@ -54,3 +63,5 @@ impl Geometry for Light {
         }
     }
 }
+
+impl ActorWithGeometry for Light {}

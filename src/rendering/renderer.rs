@@ -1,8 +1,8 @@
 use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
-use std::process;
+use std::{cmp::Reverse, process};
 
 use crate::{
-    geometry::{Geometry, scene::Scene},
+    geometry::{Geometry, actor::ActorWithGeometry, scene::Scene},
     rendering::{light::Light, ray_emitter::RayEmitter},
 };
 
@@ -30,7 +30,14 @@ impl<'a> Renderer<'a> {
         }
     }
 
-    pub fn render(&self, ray_emitter: &RayEmitter, scene: &Scene, light: &Light) {
+    pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, light: &Light) {
+        scene.renderables.sort_by(|a, b| {
+            (a.get_position() - ray_emitter.position)
+                .length()
+                .partial_cmp(&(b.get_position() - ray_emitter.position).length())
+                .unwrap()
+        });
+
         let mut event_pump = self.sdl_context.event_pump().unwrap();
 
         {
