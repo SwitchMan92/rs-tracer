@@ -25,16 +25,14 @@ pub fn main() {
         radius: 50.,
         color: Vec4::new(0., 255., 255., 1.),
     };
-
-    let light_box = Box::new(light.clone());
-    scene.renderables.push(light_box.clone());
+    scene.renderables.push(&light);
 
     let sphere: Sphere = Sphere {
         actor: Actor::new(Vec3::new(100., 0., 0.)),
         radius: 100.,
         color: Vec4::new(0., 255., 0., 1.),
     };
-    scene.renderables.push(Box::new(sphere));
+    scene.renderables.push(&sphere);
 
     let plane: Plane = Plane {
         actor: Actor::new(Vec3::new(0., 0., 0.)),
@@ -42,9 +40,9 @@ pub fn main() {
         normal: Vec3::new(1., 0., 0.),
         color: Vec4::new(0., 0., 255., 1.),
     };
-    scene.renderables.push(Box::new(plane));
+    scene.renderables.push(&plane);
 
     loop {
-        renderer.render(&ray_emitter, &mut scene, &light_box);
+        renderer.render(&ray_emitter, &mut scene, &light);
     }
 }

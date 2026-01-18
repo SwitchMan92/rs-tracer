@@ -7,11 +7,11 @@ use crate::geometry::actor::ActorWithGeometry;
 use crate::rendering::light::Light;
 use crate::rendering::ray::Ray;
 
-pub struct Scene {
-    pub renderables: Vec<Box<dyn ActorWithGeometry>>,
+pub struct Scene<'a> {
+    pub renderables: Vec<&'a dyn ActorWithGeometry>,
 }
 
-impl Scene {
+impl<'a> Scene<'a> {
     pub fn new() -> Self {
         Self {
             renderables: Vec::new(),
@@ -19,7 +19,7 @@ impl Scene {
     }
 }
 
-impl Geometry for Scene {
+impl<'a> Geometry for Scene<'a> {
     fn collide(&self, ray: &Ray, light: &Light) -> Vec4 {
         let mut result_color = Vec4::new(0., 0., 0., 0.);
 
