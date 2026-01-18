@@ -33,17 +33,11 @@ impl Geometry for Plane {
             return Vec4::new(0., 0., 0., 0.);
         }
 
-        let ray_vec = (ray.origin + ray.direction).normalize();
-        let light_vec = (light.position + light.direction).normalize();
+        let ray_vec = ray.origin + ray.direction;
+        let light_vec = light.position + light.direction;
         let product = ray_vec.dot(light_vec);
 
         self.color * product
-
-        // let mut plane_vectors = self.normal.any_orthonormal_pair();
-        // plane_vectors.0 = self.position + plane_vectors.0 * self.scalar;
-        // plane_vectors.1 = self.position + plane_vectors.1 * self.scalar;
-        // let t = self.normal.dot(self.position) - self.normal.dot(ray.origin) / self.normal.dot(ray.direction);
-        // return linePoint.plus(lineDirection.normalize().scale(t));
     }
 }
 
