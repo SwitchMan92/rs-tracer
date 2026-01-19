@@ -20,8 +20,10 @@ impl ActorTrait for Actor {
 }
 
 impl Actor {
-    pub const fn new(position: Vec3) -> Self {
-        Self { position }
+    pub const fn new(position: &Vec3) -> Self {
+        Self {
+            position: *position,
+        }
     }
 }
 

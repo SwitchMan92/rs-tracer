@@ -20,7 +20,7 @@ pub fn main() {
     let mut scene: Scene = Scene::new();
 
     let light = Light {
-        actor: Actor::new(Vec3::new(10., -200., 0.)),
+        actor: Actor::new(&Vec3::new(10., -200., 0.)),
         direction: Vec3::new(0., 0., 1.),
         radius: 50.,
         color: Vec4::new(0., 255., 255., 1.),
@@ -28,14 +28,14 @@ pub fn main() {
     scene.renderables.push(&light);
 
     let sphere: Sphere = Sphere {
-        actor: Actor::new(Vec3::new(100., 0., 0.)),
+        actor: Actor::new(&Vec3::new(100., 0., 0.)),
         radius: 100.,
         color: Vec4::new(0., 255., 0., 1.),
     };
     scene.renderables.push(&sphere);
 
     let plane: Plane = Plane {
-        actor: Actor::new(Vec3::new(0., 0., 0.)),
+        actor: Actor::new(&Vec3::new(0., 0., 0.)),
         normal: Vec3::new(1., 0., 0.),
         color: Vec4::new(0., 0., 255., 1.),
     };
