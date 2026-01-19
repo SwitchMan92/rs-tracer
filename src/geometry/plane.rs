@@ -19,12 +19,6 @@ impl std::ops::Deref for Plane {
     }
 }
 
-impl ActorTrait for Plane {
-    fn get_position(&self) -> Vec3 {
-        self.position
-    }
-}
-
 impl Geometry for Plane {
     //// check if the ray intersects with the current plane structure and return the ray's color post-interaction.
     fn collide(&self, ray: &Ray, light: &Light) -> Vec4 {
@@ -33,10 +27,31 @@ impl Geometry for Plane {
         }
 
         let ray_vec = ray.origin + ray.direction;
-        let light_vec = light.position + light.direction;
+        let light_vec = light.get_location() + light.direction;
         let product = ray_vec.dot(light_vec);
 
         self.color * product
+    }
+}
+
+impl ActorTrait for Plane {
+    fn get_location(&self) -> Vec3 {
+        self.actor.get_location()
+    }
+    fn get_rotation_angles(&self) -> Vec3 {
+        self.actor.get_rotation_angles()
+    }
+    fn get_scaling_factors(&self) -> Vec3 {
+        self.actor.get_scaling_factors()
+    }
+    fn set_location(&mut self, position: &Vec3) {
+        self.actor.set_location(position);
+    }
+    fn set_rotation(&mut self, euler_angles: &Vec3) {
+        self.actor.set_rotation(euler_angles);
+    }
+    fn set_scaling(&mut self, scale_factors: &Vec3) {
+        self.actor.set_scaling(scale_factors);
     }
 }
 

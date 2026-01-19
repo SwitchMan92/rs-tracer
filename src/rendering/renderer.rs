@@ -2,7 +2,7 @@ use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
 use std::process;
 
 use crate::{
-    geometry::{Geometry, scene::Scene},
+    geometry::{Geometry, actor::ActorTrait, scene::Scene},
     rendering::{light::Light, ray_emitter::RayEmitter},
 };
 
@@ -35,9 +35,9 @@ impl<'a> Renderer<'a> {
     /// then draw each object on the window surface, from the furthest to the nearest.
     pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, light: &Light) {
         scene.renderables.sort_by(|a, b| {
-            (a.get_position() - ray_emitter.position)
+            (a.get_location() - ray_emitter.get_location())
                 .length()
-                .partial_cmp(&(b.get_position() - ray_emitter.position).length())
+                .partial_cmp(&(b.get_location() - ray_emitter.get_location()).length())
                 .unwrap()
         });
 

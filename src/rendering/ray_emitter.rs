@@ -1,7 +1,7 @@
-use glam::Vec3;
+use glam::{Vec3, vec3};
 use range2d::Range2D;
 
-use crate::geometry::actor::Actor;
+use crate::geometry::actor::{Actor, ActorTrait};
 use crate::rendering::ray::Ray;
 
 /// Structure containing and managing an array of rays.
@@ -24,15 +24,17 @@ impl std::ops::Deref for RayEmitter {
 impl RayEmitter {
     //// Declares and initializes the ray structures, given the screen's resolution.
     fn calculate_rays(&mut self) {
+        let location = self.get_location();
+
         let screen_bottom: Vec3 = Vec3::new(
-            self.position.x - self.resolution_x as f32 / 2.,
-            self.position.y - self.resolution_y as f32 / 2.,
-            self.position.z,
+            location.x - self.resolution_x as f32 / 2.,
+            location.y - self.resolution_y as f32 / 2.,
+            location.z,
         );
         let screen_top: Vec3 = Vec3::new(
-            self.position.x + self.resolution_x as f32 / 2.,
-            self.position.y + self.resolution_y as f32 / 2.,
-            self.position.z,
+            location.x + self.resolution_x as f32 / 2.,
+            location.y + self.resolution_y as f32 / 2.,
+            location.z,
         );
         let screen_unit: Vec3 = Vec3::new(
             (screen_top.x - screen_bottom.x) / self.resolution_x as f32,
@@ -54,7 +56,7 @@ impl RayEmitter {
 impl RayEmitter {
     pub fn new(position: Vec3, direction: Vec3, resolution_x: usize, resolution_y: usize) -> Self {
         let mut new_emitter = Self {
-            actor: Actor::new(&position),
+            actor: Actor::new(&position, &Vec3::default(), &vec3(1., 1., 1.)),
             direction: direction,
             resolution_x: resolution_x,
             resolution_y: resolution_y,

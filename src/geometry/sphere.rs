@@ -20,8 +20,23 @@ impl std::ops::Deref for Sphere {
 }
 
 impl ActorTrait for Sphere {
-    fn get_position(&self) -> Vec3 {
-        self.position
+    fn get_location(&self) -> Vec3 {
+        self.actor.get_location()
+    }
+    fn get_rotation_angles(&self) -> Vec3 {
+        self.actor.get_rotation_angles()
+    }
+    fn get_scaling_factors(&self) -> Vec3 {
+        self.actor.get_scaling_factors()
+    }
+    fn set_location(&mut self, position: &Vec3) {
+        self.actor.set_location(position);
+    }
+    fn set_rotation(&mut self, euler_angles: &Vec3) {
+        self.actor.set_rotation(euler_angles);
+    }
+    fn set_scaling(&mut self, scale_factors: &Vec3) {
+        self.actor.set_scaling(scale_factors);
     }
 }
 
@@ -31,7 +46,7 @@ impl Geometry for Sphere {
         const VOID: Vec4 = Vec4::new(0., 0., 0., 0.);
 
         let d = ray.direction;
-        let f = ray.origin - self.position;
+        let f = ray.origin - self.get_location();
 
         let a = d.dot(d);
         let b = 2. * f.dot(d);
@@ -49,7 +64,7 @@ impl Geometry for Sphere {
 
                 if (t1 >= 0. && t1 <= 1.) || (t2 >= 0. && t2 <= 1.) || (t1 < 0. && t2 > 1.) {
                     let ray_vec = (ray.origin + ray.direction).normalize();
-                    let light_vec = (light.position + light.direction).normalize();
+                    let light_vec = (light.get_location() + light.direction).normalize();
 
                     let product = ray_vec.dot(light_vec);
                     return self.color * product;
