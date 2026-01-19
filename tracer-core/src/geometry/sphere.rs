@@ -62,7 +62,7 @@ impl Geometry for Sphere {
                 let t1 = (-b - x) / (2. * a);
                 let t2 = (-b + x) / (2. * a);
 
-                if (t1 >= 0. && t1 <= 1.) || (t2 >= 0. && t2 <= 1.) || (t1 < 0. && t2 > 1.) {
+                if (0. ..=1.).contains(&t1) || (0. ..=1.).contains(&t2) || (t1 < 0. && t2 > 1.) {
                     let ray_vec = (ray.origin + ray.direction).normalize();
                     let light_vec = (light.get_location() + light.direction).normalize();
 

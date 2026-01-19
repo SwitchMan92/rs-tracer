@@ -1,23 +1,8 @@
-[package]
-name = "raytracer"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+members = ["tracer-core"]
 
-[dependencies]
+[workspace.dependencies]
 glam = "0.30.10"
 range2d = "0.2.0"
 sdl2 = "0.38.0"
-
-[profile.release]
-debug = false
-lto = true
-codegen-units = 1
-panic = "abort"
-
-[profile.dev]
-debug = true
-strip = "debuginfo"
-lto = true
-codegen-units = 1
-panic = "abort"
-split-debuginfo = "off"
+rand = "0.8.5"

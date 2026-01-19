@@ -6,7 +6,7 @@ use crate::{
     rendering::{light::Light, ray_emitter::RayEmitter},
 };
 
-//// Structure in charge of managing the window and the window's render target.
+/// Structure in charge of managing the window and the window's render target.
 pub struct Renderer<'a> {
     window: Window,
     sdl_context: &'a Sdl,
@@ -26,8 +26,8 @@ impl<'a> Renderer<'a> {
             .unwrap();
 
         Self {
-            window: window,
-            sdl_context: sdl_context,
+            window,
+            sdl_context,
         }
     }
 

@@ -48,7 +48,6 @@ impl Geometry for Light {
                 if (t1 >= 0. && t1 <= 1.) || (t2 >= 0. && t2 <= 1.) || (t1 < 0. && t2 > 1.) {
                     let ray_vec = ray.origin + ray.direction;
                     let light_vec = light.get_location() + light.direction;
-
                     let product = ray_vec.dot(light_vec);
                     return self.color * product;
                 }
