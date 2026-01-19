@@ -24,31 +24,29 @@ impl std::ops::Deref for RayEmitter {
 impl RayEmitter {
     //// Declares and initializes the ray structures, given the screen's resolution.
     fn calculate_rays(&mut self) {
-        if self.rays.len() == 0 {
-            let screen_bottom: Vec3 = Vec3::new(
-                self.position.x - self.resolution_x as f32 / 2.,
-                self.position.y - self.resolution_y as f32 / 2.,
-                self.position.z,
-            );
-            let screen_top: Vec3 = Vec3::new(
-                self.position.x + self.resolution_x as f32 / 2.,
-                self.position.y + self.resolution_y as f32 / 2.,
-                self.position.z,
-            );
-            let screen_unit: Vec3 = Vec3::new(
-                (screen_top.x - screen_bottom.x) / self.resolution_x as f32,
-                (screen_top.y - screen_bottom.y) / self.resolution_y as f32,
-                0.,
-            );
+        let screen_bottom: Vec3 = Vec3::new(
+            self.position.x - self.resolution_x as f32 / 2.,
+            self.position.y - self.resolution_y as f32 / 2.,
+            self.position.z,
+        );
+        let screen_top: Vec3 = Vec3::new(
+            self.position.x + self.resolution_x as f32 / 2.,
+            self.position.y + self.resolution_y as f32 / 2.,
+            self.position.z,
+        );
+        let screen_unit: Vec3 = Vec3::new(
+            (screen_top.x - screen_bottom.x) / self.resolution_x as f32,
+            (screen_top.y - screen_bottom.y) / self.resolution_y as f32,
+            0.,
+        );
 
-            self.rays = Range2D::new(0..self.resolution_y, 0..self.resolution_x)
-                .map(|i| Ray {
-                    origin: screen_bottom
-                        + Vec3::new(screen_unit.x * i.1 as f32, screen_unit.y * i.0 as f32, 0.),
-                    direction: self.direction,
-                })
-                .collect();
-        }
+        self.rays = Range2D::new(0..self.resolution_y, 0..self.resolution_x)
+            .map(|i| Ray {
+                origin: screen_bottom
+                    + Vec3::new(screen_unit.x * i.1 as f32, screen_unit.y * i.0 as f32, 0.),
+                direction: self.direction,
+            })
+            .collect();
     }
 }
 

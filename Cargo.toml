@@ -9,7 +9,10 @@ range2d = "0.2.0"
 sdl2 = "0.38.0"
 
 [profile.release]
-debug = true
+debug = false
+lto = true
+codegen-units = 1
+panic = "abort"
 
 [profile.dev]
 debug = true
