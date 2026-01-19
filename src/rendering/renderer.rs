@@ -50,15 +50,15 @@ impl<'a> Renderer<'a> {
                 ray_emitter
                     .rays
                     .iter()
+                    .rev()
                     .map(|ray| scene.collide(ray, light))
                     .enumerate()
                     .for_each(|it| {
-                        buffer[it.0 * 4 + 3] = it.1.x as u8;
-                        buffer[it.0 * 4 + 2] = it.1.y as u8;
-                        buffer[it.0 * 4 + 1] = it.1.z as u8;
-                        buffer[it.0 * 4] = 1;
+                        buffer[it.0 * 4] = it.1.x as u8;
+                        buffer[it.0 * 4 + 1] = it.1.y as u8;
+                        buffer[it.0 * 4 + 2] = it.1.z as u8;
+                        buffer[it.0 * 4 + 3] = 1;
                     });
-                buffer.reverse();
             });
 
             let _ = surface.finish();
