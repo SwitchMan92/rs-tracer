@@ -50,7 +50,6 @@ impl<'a> Renderer<'a> {
                 ray_emitter
                     .rays
                     .iter()
-                    .rev()
                     .map(|ray| scene.collide(ray, light))
                     .enumerate()
                     .for_each(|it| {

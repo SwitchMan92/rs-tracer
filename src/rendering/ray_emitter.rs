@@ -46,6 +46,7 @@ impl RayEmitter {
                     + Vec3::new(screen_unit.x * i.1 as f32, screen_unit.y * i.0 as f32, 0.),
                 direction: self.direction,
             })
+            .rev()
             .collect();
     }
 }
