@@ -5,7 +5,7 @@ use crate::geometry::actor::{Actor, ActorTrait, ActorWithGeometry};
 use crate::rendering::light::Light;
 use crate::rendering::ray::Ray;
 
-//// Structure representing a Planar surface.
+/// Structure representing a Planar surface.
 pub struct Plane {
     pub actor: Actor,
     pub color: Vec4,

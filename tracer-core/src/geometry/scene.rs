@@ -5,7 +5,7 @@ use crate::geometry::actor::ActorWithGeometry;
 use crate::rendering::light::Light;
 use crate::rendering::ray::Ray;
 
-//// Container structure representing the scene's composition.
+/// Container structure representing the scene's composition.
 pub struct Scene<'a> {
     pub renderables: Vec<&'a dyn ActorWithGeometry>,
 }
