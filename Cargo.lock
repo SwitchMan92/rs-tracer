@@ -39,15 +39,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7169c4e8549f72214a10fe6a64e24bf5e2d75ca9378d0ac7934afb9acbdfc313"
 
 [[package]]
-name = "raytracer"
-version = "0.1.0"
-dependencies = [
- "glam",
- "range2d",
- "sdl2",
-]
-
-[[package]]
 name = "sdl2"
 version = "0.38.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -68,6 +59,15 @@ dependencies = [
  "cfg-if",
  "libc",
  "version-compare",
+]
+
+[[package]]
+name = "tracer-core"
+version = "0.1.0"
+dependencies = [
+ "glam",
+ "range2d",
+ "sdl2",
 ]
 
 [[package]]
