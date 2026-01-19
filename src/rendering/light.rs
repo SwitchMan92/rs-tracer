@@ -9,7 +9,6 @@ use crate::{
 };
 
 /// Structure holding a given light's representation.
-#[derive(Clone)]
 pub struct Light {
     pub actor: Actor,
     pub direction: Vec3,
