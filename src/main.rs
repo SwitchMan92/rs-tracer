@@ -36,7 +36,6 @@ pub fn main() {
 
     let plane: Plane = Plane {
         actor: Actor::new(Vec3::new(0., 0., 0.)),
-        scalar: Vec3::new(100., 100., 100.),
         normal: Vec3::new(1., 0., 0.),
         color: Vec4::new(0., 0., 255., 1.),
     };

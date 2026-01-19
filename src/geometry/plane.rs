@@ -9,7 +9,6 @@ use crate::rendering::ray::Ray;
 pub struct Plane {
     pub actor: Actor,
     pub color: Vec4,
-    pub scalar: Vec3,
     pub normal: Vec3,
 }
 

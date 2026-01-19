@@ -10,3 +10,11 @@ sdl2 = "0.38.0"
 
 [profile.release]
 debug = true
+
+[profile.dev]
+debug = true
+strip = "debuginfo"
+lto = true
+codegen-units = 1
+panic = "abort"
+split-debuginfo = "off"
