@@ -37,13 +37,17 @@ impl ActorTrait for Plane {
 impl Geometry for Plane {
     //// check if the ray intersects with the current plane structure and return the ray's color post-interaction.
     fn intersect(&self, ray: &Ray, light: &Light) -> Option<(Vec3, Vec4)> {
-        match ray.get_direction().dot(self.get_direction()) {
-            0. => None,
-            x => {
-                let intersection_point = ray.get_position() + x * ray.get_direction();
-                let light_intensity = (light.get_position() + light.get_direction())
-                    .dot(intersection_point + self.get_direction());
-                Some((intersection_point, self.color * light_intensity))
+        let n_dot_l = ray.get_direction().dot(self.get_direction());
+        match n_dot_l {
+            x if x < 0.001 => None,
+            _ => {
+                let t =
+                    (self.get_position() - ray.get_position()).dot(self.get_direction()) / n_dot_l;
+
+                match t {
+                    x if x < 1. => None,
+                    _ => Some((ray.get_position() + t * ray.get_direction(), self.color * t)),
+                }
             }
         }
     }

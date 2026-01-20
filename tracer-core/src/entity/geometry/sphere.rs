@@ -52,17 +52,15 @@ impl Geometry for Sphere {
             mut x => {
                 x = x.sqrt();
 
-                let t1 = (-b - x) / (2. * a);
-                let t2 = (-b + x) / (2. * a);
+                let t0 = (-b - x) / (2. * a);
+                let t1 = (-b + x) / (2. * a);
 
                 let t: f32;
 
-                if (0. ..=1.).contains(&t1) {
-                    t = t1;
-                } else if (0. ..=1.).contains(&t2) {
-                    t = t2;
-                } else if t1 < 0. && t2 > 1. {
-                    t = t2;
+                if t0 > 1. {
+                    t = t0;
+                } else if t1 > 1. {
+                    t = t1
                 } else {
                     return None;
                 }
