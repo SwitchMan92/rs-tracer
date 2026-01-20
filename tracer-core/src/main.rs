@@ -8,6 +8,7 @@ use crate::rendering::light::Light;
 use crate::rendering::ray_emitter::RayEmitter;
 use crate::rendering::renderer::Renderer;
 
+mod entity;
 mod geometry;
 mod rendering;
 

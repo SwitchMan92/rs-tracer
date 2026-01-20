@@ -27,7 +27,7 @@ impl ActorTrait for Sphere {
 
 impl Geometry for Sphere {
     /// Check line-circle plain intersection and return the ray color post-interaction.
-    fn collide(&self, ray: &Ray, light: &Light) -> Vec4 {
+    fn intersect(&self, ray: &Ray, light: &Light) -> Vec4 {
         const VOID: Vec4 = Vec4::new(0., 0., 0., 0.);
 
         let d = ray.direction;
@@ -73,7 +73,7 @@ mod tests {
     };
 
     #[test]
-    fn test_success_collide() {
+    fn test_success_intersect() {
         const COLOR: Vec4 = Vec4::new(255., 255., 255., 0.);
         const VOID: Vec4 = Vec4::new(0., 0., 0., 0.);
 
@@ -95,7 +95,7 @@ mod tests {
             color: Vec4::new(0., 0., 255., 1.),
         };
 
-        assert!(sphere.collide(&ray, &light) != VOID);
+        assert!(sphere.intersect(&ray, &light) != VOID);
 
         let ray = Ray {
             origin: Vec3::new(0., 2., 0.),
@@ -108,11 +108,11 @@ mod tests {
             radius: 1.,
         };
 
-        assert!(sphere.collide(&ray, &light) != VOID);
+        assert!(sphere.intersect(&ray, &light) != VOID);
     }
 
     #[test]
-    fn test_failure_collide() {
+    fn test_failure_intersect() {
         let ray = Ray {
             origin: Vec3::new(0., 2., 0.),
             direction: Vec3::new(1., 1., 0.),
@@ -134,7 +134,7 @@ mod tests {
             color: Vec4::new(0., 0., 255., 1.),
         };
 
-        assert_eq!(sphere.collide(&ray, &light), VOID);
+        assert_eq!(sphere.intersect(&ray, &light), VOID);
 
         let ray = Ray {
             origin: Vec3::new(0., 2., 0.),
@@ -147,6 +147,6 @@ mod tests {
             radius: 1.,
         };
 
-        assert_eq!(sphere.collide(&ray, &light), VOID);
+        assert_eq!(sphere.intersect(&ray, &light), VOID);
     }
 }
