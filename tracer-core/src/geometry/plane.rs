@@ -27,7 +27,7 @@ impl ActorTrait for Plane {
 
 impl Geometry for Plane {
     //// check if the ray intersects with the current plane structure and return the ray's color post-interaction.
-    fn collide(&self, ray: &Ray, light: &Light) -> Vec4 {
+    fn intersect(&self, ray: &Ray, light: &Light) -> Vec4 {
         if self.normal.dot(ray.direction) == 0. {
             return Vec4::new(0., 0., 0., 0.);
         }

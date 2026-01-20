@@ -20,11 +20,11 @@ impl<'a> Scene<'a> {
 
 impl<'a> Geometry for Scene<'a> {
     //// Iterate through the scene's renderable objects, and calculates the ray emitter ray's final color.
-    fn collide(&self, ray: &Ray, light: &Light) -> Vec4 {
+    fn intersect(&self, ray: &Ray, light: &Light) -> Vec4 {
         let mut result_color = Vec4::new(0., 0., 0., 0.);
 
         self.renderables.iter().for_each(|x| {
-            let current_color = x.collide(ray, light);
+            let current_color = x.intersect(ray, light);
             if current_color != Vec4::new(0., 0., 0., 0.) {
                 result_color = current_color;
             }

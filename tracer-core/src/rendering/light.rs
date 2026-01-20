@@ -31,7 +31,7 @@ impl ActorTrait for Light {
 
 impl Geometry for Light {
     /// Render the light object as a sphere, mostly for scene's debugging purpose.
-    fn collide(&self, ray: &Ray, light: &Light) -> Vec4 {
+    fn intersect(&self, ray: &Ray, light: &Light) -> Vec4 {
         const VOID: Vec4 = Vec4::new(0., 0., 0., 0.);
 
         let d = ray.direction;

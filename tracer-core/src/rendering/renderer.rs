@@ -2,6 +2,7 @@ use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
 use std::process;
 
 use crate::{
+    entity::actor::ActorTrait,
     geometry::{Geometry, scene::Scene},
     rendering::{light::Light, ray_emitter::RayEmitter},
 };
@@ -35,9 +36,9 @@ impl<'a> Renderer<'a> {
     /// then draw each object on the window surface, from the furthest to the nearest.
     pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, light: &Light) {
         scene.renderables.sort_by(|a, b| {
-            (a.get_position() - ray_emitter.position)
+            (a.get_position() - ray_emitter.get_position())
                 .length()
-                .partial_cmp(&(b.get_position() - ray_emitter.position).length())
+                .partial_cmp(&(b.get_position() - ray_emitter.get_position()).length())
                 .unwrap()
         });
 
@@ -50,7 +51,7 @@ impl<'a> Renderer<'a> {
                 ray_emitter
                     .rays
                     .iter()
-                    .map(|ray| scene.collide(ray, light))
+                    .map(|ray| scene.intersect(ray, light))
                     .enumerate()
                     .for_each(|it| {
                         buffer[it.0 * 4] = it.1.x as u8;

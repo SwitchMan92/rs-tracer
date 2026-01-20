@@ -8,6 +8,7 @@ use crate::rendering::light::Light;
 use crate::rendering::ray_emitter::RayEmitter;
 use crate::rendering::renderer::Renderer;
 
+mod entity;
 mod geometry;
 mod rendering;
 
@@ -20,7 +21,7 @@ pub fn main() {
     let mut scene: Scene = Scene::new();
 
     let light = Light {
-        actor: Actor::new(Vec3::new(10., 400., 0.)),
+        actor: Actor::new(&Vec3::new(10., 400., 0.)),
         direction: Vec3::new(0., -1., 0.),
         radius: 50.,
         color: Vec4::new(0., 255., 255., 1.),
@@ -28,14 +29,14 @@ pub fn main() {
     scene.renderables.push(&light);
 
     let sphere: Sphere = Sphere {
-        actor: Actor::new(Vec3::new(0., 100., 0.)),
+        actor: Actor::new(&Vec3::new(0., 100., 0.)),
         radius: 50.,
         color: Vec4::new(0., 255., 0., 1.),
     };
     scene.renderables.push(&sphere);
 
     let plane: Plane = Plane {
-        actor: Actor::new(Vec3::new(0., 0., 0.)),
+        actor: Actor::new(&Vec3::new(0., 0., 0.)),
         normal: Vec3::new(0., 1., 0.),
         color: Vec4::new(0., 0., 255., 1.),
     };
