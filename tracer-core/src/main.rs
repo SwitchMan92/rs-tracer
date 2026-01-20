@@ -1,15 +1,14 @@
-use geometry::sphere::Sphere;
 use glam::{Vec3, Vec4};
 
-use crate::geometry::actor::Actor;
-use crate::geometry::plane::Plane;
-use crate::geometry::scene::Scene;
-use crate::rendering::light::Light;
+use crate::entity::actor::Actor;
+use crate::entity::geometry::plane::Plane;
+use crate::entity::geometry::sphere::Sphere;
+use crate::entity::rendering::light::Light;
+use crate::entity::scene::Scene;
 use crate::rendering::ray_emitter::RayEmitter;
 use crate::rendering::renderer::Renderer;
 
 mod entity;
-mod geometry;
 mod rendering;
 
 pub fn main() {
@@ -20,12 +19,12 @@ pub fn main() {
 
     let mut scene: Scene = Scene::new();
 
-    let light = Light {
-        actor: Actor::new(&Vec3::new(10., 400., 0.)),
-        direction: Vec3::new(0., -1., 0.),
-        radius: 50.,
-        color: Vec4::new(0., 255., 255., 1.),
-    };
+    let light = Light::new(
+        &Vec3::new(10., 400., 0.),
+        &Vec3::new(0., -1., 0.),
+        50.,
+        Vec4::new(0., 255., 255., 1.),
+    );
     scene.renderables.push(&light);
 
     let sphere: Sphere = Sphere {
@@ -35,11 +34,11 @@ pub fn main() {
     };
     scene.renderables.push(&sphere);
 
-    let plane: Plane = Plane {
-        actor: Actor::new(&Vec3::new(0., 0., 0.)),
-        normal: Vec3::new(0., 1., 0.),
-        color: Vec4::new(0., 0., 255., 1.),
-    };
+    let plane: Plane = Plane::new(
+        &Vec3::new(0., 0., 0.),
+        &Vec3::new(0., 1., 0.),
+        &Vec4::new(0., 0., 255., 1.),
+    );
     scene.renderables.push(&plane);
 
     loop {

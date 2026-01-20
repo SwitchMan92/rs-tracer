@@ -1,8 +1,10 @@
 use glam::Vec3;
 use range2d::Range2D;
 
-use crate::entity::actor::{ActorTrait, DirectionalActor, DirectionalActorTrait};
-use crate::rendering::ray::Ray;
+use crate::entity::{
+    actor::{ActorTrait, DirectionalActor, DirectionalActorTrait},
+    geometry::ray::Ray,
+};
 
 /// Structure containing and managing an array of rays.
 /// Each ray is then associated to a pixel of the render target in the renderer class, at the projection stage.
@@ -40,10 +42,12 @@ impl RayEmitter {
         );
 
         self.rays = Range2D::new(0..self.resolution_y, 0..self.resolution_x)
-            .map(|i| Ray {
-                origin: screen_bottom
-                    + Vec3::new(screen_unit.x * i.1 as f32, screen_unit.y * i.0 as f32, 0.),
-                direction: self.get_direction(),
+            .map(|i| {
+                Ray::new(
+                    &(screen_bottom
+                        + Vec3::new(screen_unit.x * i.1 as f32, screen_unit.y * i.0 as f32, 0.)),
+                    &self.get_direction(),
+                )
             })
             .rev()
             .collect();
@@ -63,10 +67,11 @@ impl RayEmitter {
     }
 }
 
+// #####################################
+
 #[cfg(test)]
 mod tests {
-    use crate::rendering::ray::Ray;
-    use crate::rendering::ray_emitter::RayEmitter;
+    use crate::{entity::geometry::ray::Ray, rendering::ray_emitter::RayEmitter};
     use glam::Vec3;
     use range2d::Range2D;
 
@@ -81,13 +86,7 @@ mod tests {
 
         Range2D::new(0..2, 0..2).rev().enumerate().for_each(|it| {
             let origin = Vec3::new(-1. + it.1.1 as f32, -1. + it.1.0 as f32, 0.);
-            assert_eq!(
-                emitter.rays[it.0],
-                Ray {
-                    origin: origin,
-                    direction: direction
-                }
-            );
+            assert_eq!(emitter.rays[it.0], Ray::new(&origin, &direction));
         });
     }
 }

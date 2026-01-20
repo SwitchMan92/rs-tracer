@@ -1,31 +1,36 @@
 use glam::{Vec3, Vec4};
 
-use crate::{
-    geometry::{
-        Geometry,
-        actor::{Actor, ActorTrait, ActorWithGeometry},
-    },
-    rendering::ray::Ray,
-};
+use crate::entity::actor::{Actor, ActorTrait, DirectionalActor, DirectionalActorTrait};
+use crate::entity::geometry::ray::Ray;
+use crate::entity::geometry::{ActorWithGeometry, Geometry};
 
 /// Structure holding a given light's representation.
 pub struct Light {
-    pub actor: Actor,
-    pub direction: Vec3,
-    pub radius: f32,
-    pub color: Vec4,
+    dir_actor: DirectionalActor,
+    radius: f32,
+    color: Vec4,
 }
 
 impl std::ops::Deref for Light {
-    type Target = Actor;
+    type Target = DirectionalActor;
     fn deref(&self) -> &Self::Target {
-        &self.actor
+        &self.dir_actor
+    }
+}
+
+impl Light {
+    pub const fn new(position: &Vec3, direction: &Vec3, radius: f32, color: Vec4) -> Self {
+        Self {
+            dir_actor: DirectionalActor::new(position, direction),
+            radius: radius,
+            color: color,
+        }
     }
 }
 
 impl ActorTrait for Light {
     fn get_position(&self) -> Vec3 {
-        self.position
+        self.dir_actor.get_position()
     }
 }
 
@@ -34,8 +39,8 @@ impl Geometry for Light {
     fn intersect(&self, ray: &Ray, light: &Light) -> Vec4 {
         const VOID: Vec4 = Vec4::new(0., 0., 0., 0.);
 
-        let d = ray.direction;
-        let f = ray.origin - self.position;
+        let d = ray.get_direction();
+        let f = ray.get_position() - self.get_position();
 
         let a = d.dot(d);
         let b = 2. * f.dot(d);
@@ -52,8 +57,8 @@ impl Geometry for Light {
                 let t2 = (-b + x) / (2. * a);
 
                 if (0. ..=1.).contains(&t1) || (0. ..=1.).contains(&t2) || (t1 < 0. && t2 > 1.) {
-                    let ray_vec = (ray.origin + ray.direction).normalize();
-                    let light_vec = (light.position + light.direction).normalize();
+                    let ray_vec = (ray.get_position() + ray.get_direction()).normalize();
+                    let light_vec = (light.get_position() + light.get_direction()).normalize();
 
                     let product = ray_vec.dot(light_vec);
                     return self.color * product;

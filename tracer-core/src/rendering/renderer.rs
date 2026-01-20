@@ -2,9 +2,8 @@ use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
 use std::process;
 
 use crate::{
-    entity::actor::ActorTrait,
-    geometry::{Geometry, scene::Scene},
-    rendering::{light::Light, ray_emitter::RayEmitter},
+    entity::{actor::ActorTrait, geometry::Geometry, rendering::light::Light, scene::Scene},
+    rendering::ray_emitter::RayEmitter,
 };
 
 /// Structure in charge of managing the window and the window's render target.

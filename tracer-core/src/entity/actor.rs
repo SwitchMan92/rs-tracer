@@ -1,10 +1,11 @@
 use glam::Vec3;
 
-use crate::geometry::Geometry;
+use crate::entity::geometry::Geometry;
 
 // #####################################
 
 /// base 'class' inherited by any object allowing interaction with the current scene.
+#[derive(Debug)]
 pub struct Actor {
     pub position: Vec3,
 }
@@ -29,7 +30,7 @@ impl Actor {
 }
 
 // #####################################
-
+#[derive(Debug)]
 pub struct DirectionalActor {
     actor: Actor,
     direction: Vec3,
@@ -60,8 +61,3 @@ impl DirectionalActor {
         }
     }
 }
-
-// #####################################
-
-/// Public trait mixin used to allow operations on geomerty and position simultaneously.
-pub trait ActorWithGeometry: Geometry + ActorTrait {}
