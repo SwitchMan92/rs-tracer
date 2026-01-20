@@ -10,8 +10,8 @@ use crate::entity::{
 /// Each ray is then associated to a pixel of the render target in the renderer class, at the projection stage.
 pub struct RayEmitter {
     dir_actor: DirectionalActor,
-    resolution_x: usize,
-    resolution_y: usize,
+    resolution_x: u32,
+    resolution_y: u32,
     pub rays: Vec<Ray>,
 }
 
@@ -55,7 +55,7 @@ impl RayEmitter {
 }
 
 impl RayEmitter {
-    pub fn new(position: Vec3, direction: Vec3, resolution_x: usize, resolution_y: usize) -> Self {
+    pub fn new(position: Vec3, direction: Vec3, resolution_x: u32, resolution_y: u32) -> Self {
         let mut new_emitter = Self {
             dir_actor: DirectionalActor::new(&position, &direction),
             resolution_x,
