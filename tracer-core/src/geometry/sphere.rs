@@ -1,3 +1,5 @@
+use core::f32;
+
 use crate::geometry::Geometry;
 use crate::geometry::actor::{Actor, ActorTrait, ActorWithGeometry};
 use crate::rendering::light::Light;
@@ -44,18 +46,25 @@ impl Geometry for Sphere {
             mut x => {
                 x = x.sqrt();
 
-                let t1 = (-b - x) / (2. * a);
-                let t2 = (-b + x) / (2. * a);
+                let t0 = (-b - x) / (2. * a);
+                let t1 = (-b + x) / (2. * a);
 
-                if (0. ..=1.).contains(&t1) || (0. ..=1.).contains(&t2) || (t1 < 0. && t2 > 1.) {
-                    let ray_vec = (ray.origin + ray.direction).normalize();
-                    let light_vec = (light.position + light.direction).normalize();
+                let t: f32;
 
-                    let product = ray_vec.dot(light_vec);
-                    return self.color * product;
+                if (0. ..=1.).contains(&t0) {
+                    t = t0;
+                } else if (0. ..=1.).contains(&t1) {
+                    t = t1;
+                } else if t0 < 0. && t1 > 1. {
+                    t = (t0 + t1) / 2.;
+                } else {
+                    return Vec4::ZERO;
                 }
 
-                VOID
+                let intersection_point = ray.origin + t * ray.direction;
+                let sphere_normal = (intersection_point - self.position) / self.radius;
+                let dot = (light.position - intersection_point).dot(sphere_normal);
+                self.color * f32::max(0., dot)
             }
         }
     }
