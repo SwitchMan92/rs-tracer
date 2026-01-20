@@ -54,7 +54,7 @@ impl RayEmitter {
 impl RayEmitter {
     pub fn new(position: Vec3, direction: Vec3, resolution_x: usize, resolution_y: usize) -> Self {
         let mut new_emitter = Self {
-            actor: Actor::new(position),
+            actor: Actor::new(&position),
             direction,
             resolution_x,
             resolution_y,
