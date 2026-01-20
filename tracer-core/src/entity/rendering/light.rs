@@ -1,6 +1,6 @@
 use glam::{Vec3, Vec4};
 
-use crate::entity::actor::{Actor, ActorTrait, DirectionalActor, DirectionalActorTrait};
+use crate::entity::actor::{ActorTrait, DirectionalActor, DirectionalActorTrait};
 use crate::entity::geometry::ray::Ray;
 use crate::entity::geometry::{ActorWithGeometry, Geometry};
 
@@ -22,8 +22,8 @@ impl Light {
     pub const fn new(position: &Vec3, direction: &Vec3, radius: f32, color: Vec4) -> Self {
         Self {
             dir_actor: DirectionalActor::new(position, direction),
-            radius: radius,
-            color: color,
+            radius,
+            color,
         }
     }
 }

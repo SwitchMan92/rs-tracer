@@ -23,8 +23,8 @@ impl Sphere {
     pub const fn new(position: &Vec3, radius: f32, color: Vec4) -> Self {
         Self {
             actor: Actor::new(position),
-            radius: radius,
-            color: color,
+            radius,
+            color,
         }
     }
 }
