@@ -2,7 +2,7 @@ use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
 use std::process;
 
 use crate::{
-    entity::{actor::ActorTrait, geometry::Geometry, rendering::light::Light, scene::Scene},
+    entity::{geometry::Geometry, rendering::light::Light, scene::Scene},
     rendering::ray_emitter::RayEmitter,
 };
 
@@ -34,13 +34,6 @@ impl<'a> Renderer<'a> {
     /// Reorder the scene's objects using the depth of the camera (z-order),
     /// then draw each object on the window surface, from the furthest to the nearest.
     pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, light: &Light) {
-        scene.renderables.sort_by(|a, b| {
-            (a.get_position() - ray_emitter.get_position())
-                .length()
-                .partial_cmp(&(b.get_position() - ray_emitter.get_position()).length())
-                .unwrap()
-        });
-
         let mut event_pump = self.sdl_context.event_pump().unwrap();
 
         {
@@ -53,9 +46,10 @@ impl<'a> Renderer<'a> {
                     .map(|ray| scene.intersect(ray, light))
                     .enumerate()
                     .for_each(|it| {
-                        buffer[it.0 * 4] = it.1.x as u8;
-                        buffer[it.0 * 4 + 1] = it.1.y as u8;
-                        buffer[it.0 * 4 + 2] = it.1.z as u8;
+                        let color = it.1.unwrap();
+                        buffer[it.0 * 4] = color.x as u8;
+                        buffer[it.0 * 4 + 1] = color.y as u8;
+                        buffer[it.0 * 4 + 2] = color.z as u8;
                         buffer[it.0 * 4 + 3] = 1;
                     });
             });

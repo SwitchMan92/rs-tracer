@@ -37,9 +37,7 @@ impl ActorTrait for Sphere {
 
 impl Geometry for Sphere {
     /// Check line-circle plain intersection and return the ray color post-interaction.
-    fn intersect(&self, ray: &Ray, light: &Light) -> Vec4 {
-        const VOID: Vec4 = Vec4::new(0., 0., 0., 0.);
-
+    fn intersect(&self, ray: &Ray, light: &Light) -> Option<Vec4> {
         let d = ray.get_direction();
         let f = ray.get_position() - self.position;
 
@@ -50,7 +48,7 @@ impl Geometry for Sphere {
         let discr = b * b - 4. * a * c;
 
         match discr {
-            x if x < 0. => VOID,
+            x if x < 0. => None,
             mut x => {
                 x = x.sqrt();
 
@@ -62,10 +60,10 @@ impl Geometry for Sphere {
                     let light_vec = (light.get_position() + light.get_direction()).normalize();
 
                     let product = ray_vec.dot(light_vec);
-                    return self.color * product;
+                    return Some(self.color * product);
                 }
 
-                VOID
+                None
             }
         }
     }
@@ -101,7 +99,7 @@ mod tests {
             Vec4::new(0., 0., 255., 1.),
         );
 
-        assert!(sphere.intersect(&ray, &light) != VOID);
+        assert!(sphere.intersect(&ray, &light) != None);
 
         let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(-1., -1., 0.));
 
@@ -111,7 +109,7 @@ mod tests {
             radius: 1.,
         };
 
-        assert!(sphere.intersect(&ray, &light) != VOID);
+        assert!(sphere.intersect(&ray, &light) != None);
     }
 
     // #####################################
@@ -132,12 +130,12 @@ mod tests {
             Vec4::new(0., 0., 255., 1.),
         );
 
-        assert_eq!(sphere.intersect(&ray, &light), VOID);
+        assert_eq!(sphere.intersect(&ray, &light), None);
 
         let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(-1., 1., 0.));
 
         let sphere = Sphere::new(&Vec3::new(-2., 1., 0.), 1., COLOR);
 
-        assert_eq!(sphere.intersect(&ray, &light), VOID);
+        assert_eq!(sphere.intersect(&ray, &light), None);
     }
 }

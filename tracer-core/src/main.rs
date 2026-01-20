@@ -14,7 +14,7 @@ pub fn main() {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
     let renderer = Renderer::new(&video_subsystem, &sdl_context, 800, 800);
-    let ray_emitter = RayEmitter::new(Vec3::new(0., 0., 0.), Vec3::new(1., 0., 0.), 800, 800);
+    let ray_emitter = RayEmitter::new(Vec3::new(0., 0., 0.), Vec3::new(0., 0., 1.), 800, 800);
 
     let mut scene: Scene = Scene::new();
 
@@ -31,7 +31,7 @@ pub fn main() {
 
     let plane: Plane = Plane::new(
         &Vec3::new(0., 0., 0.),
-        &Vec3::new(0., 1., 0.),
+        &Vec3::new(0., 0., -1.),
         &Vec4::new(0., 0., 255., 1.),
     );
     scene.renderables.push(&plane);
