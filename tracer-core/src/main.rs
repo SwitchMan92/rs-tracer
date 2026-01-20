@@ -35,7 +35,7 @@ pub fn main() {
     scene.renderables.push(&sphere);
 
     let plane: Plane = Plane {
-        actor: Actor::new(&vec3(0., 0., 0.), &Vec3::default(), &vec3(1., 1., 1.)),
+        actor: Actor::new(&vec3(0., 100., 0.), &Vec3::default(), &vec3(1., 1., 1.)),
         normal: Vec3::new(1., 0., 0.),
         color: Vec4::new(0., 0., 255., 1.),
     };

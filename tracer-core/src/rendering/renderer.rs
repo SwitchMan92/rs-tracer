@@ -37,7 +37,7 @@ impl<'a> Renderer<'a> {
         scene.renderables.sort_by(|a, b| {
             (a.get_location() - ray_emitter.get_location())
                 .length()
-                .partial_cmp(&(b.get_location() - ray_emitter.get_location()).length())
+                .partial_cmp(&b.get_location().distance( ray_emitter.get_location()))
                 .unwrap()
         });
 

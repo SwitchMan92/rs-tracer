@@ -26,10 +26,12 @@ impl Geometry for Plane {
             return Vec4::new(0., 0., 0., 0.);
         }
 
-        let ray_vec = ray.origin + ray.direction;
-        let light_vec = light.get_location() + light.direction;
+        // let ray_vec = ray.origin + ray.direction;
+        // let light_vec = light.get_location() + light.direction;
+        let ray_vec = (ray.origin + ray.direction).normalize();
+        let light_vec = (light.get_location() + light.direction).normalize();
         let product = ray_vec.dot(light_vec);
-
+        
         self.color * product
     }
 }

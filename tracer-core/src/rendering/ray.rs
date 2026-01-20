@@ -13,9 +13,3 @@ impl PartialEq for Ray {
         self.origin == ray.origin && self.direction == ray.direction
     }
 }
-
-impl fmt::Display for Ray {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "({}, {})", self.origin, self.direction)
-    }
-}
