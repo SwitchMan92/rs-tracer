@@ -1,6 +1,5 @@
 use glam::{Vec3, Vec4};
 
-use crate::entity::actor::Actor;
 use crate::entity::geometry::plane::Plane;
 use crate::entity::geometry::sphere::Sphere;
 use crate::entity::rendering::light::Light;
