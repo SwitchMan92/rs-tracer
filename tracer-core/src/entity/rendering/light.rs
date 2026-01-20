@@ -41,7 +41,7 @@ impl DirectionalActorTrait for Light {
 
 impl Geometry for Light {
     /// Render the light object as a sphere, mostly for scene's debugging purpose.
-    fn intersect(&self, ray: &Ray, light: &Light) -> Option<Vec4> {
+    fn intersect(&self, ray: &Ray, light: &Light) -> Option<(Vec3, Vec4)> {
         self.geometry.intersect(ray, light)
     }
 }

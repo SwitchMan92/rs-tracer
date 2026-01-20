@@ -37,7 +37,7 @@ impl ActorTrait for Sphere {
 
 impl Geometry for Sphere {
     /// Check line-circle plain intersection and return the ray color post-interaction.
-    fn intersect(&self, ray: &Ray, light: &Light) -> Option<Vec4> {
+    fn intersect(&self, ray: &Ray, light: &Light) -> Option<(Vec3, Vec4)> {
         let d = ray.get_direction();
         let f = ray.get_position() - self.position;
 
@@ -55,15 +55,26 @@ impl Geometry for Sphere {
                 let t1 = (-b - x) / (2. * a);
                 let t2 = (-b + x) / (2. * a);
 
-                if (0. ..=1.).contains(&t1) || (0. ..=1.).contains(&t2) || (t1 < 0. && t2 > 1.) {
-                    let ray_vec = (ray.get_position() + ray.get_direction()).normalize();
-                    let light_vec = (light.get_position() + light.get_direction()).normalize();
+                let t: f32;
 
-                    let product = ray_vec.dot(light_vec);
-                    return Some(self.color * product);
+                if (0. ..=1.).contains(&t1) {
+                    t = t1;
+                } else if (0. ..=1.).contains(&t2) {
+                    t = t2;
+                } else if t1 < 0. && t2 > 1. {
+                    t = t2;
+                } else {
+                    return None;
                 }
 
-                None
+                let ray_vec = (ray.get_position() + ray.get_direction()).normalize();
+                let light_vec = (light.get_position() + light.get_direction()).normalize();
+
+                let product = ray_vec.dot(light_vec);
+                return Some((
+                    ray.get_position() + t * ray.get_direction(),
+                    self.color * product,
+                ));
             }
         }
     }

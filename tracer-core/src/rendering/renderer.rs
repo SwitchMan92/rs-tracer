@@ -45,12 +45,19 @@ impl<'a> Renderer<'a> {
                     .iter()
                     .map(|ray| scene.intersect(ray, light))
                     .enumerate()
-                    .for_each(|it| {
-                        let color = it.1.unwrap();
-                        buffer[it.0 * 4] = color.x as u8;
-                        buffer[it.0 * 4 + 1] = color.y as u8;
-                        buffer[it.0 * 4 + 2] = color.z as u8;
-                        buffer[it.0 * 4 + 3] = 1;
+                    .for_each(|it| match it.1 {
+                        None => {
+                            buffer[it.0 * 4] = 0;
+                            buffer[it.0 * 4 + 1] = 0;
+                            buffer[it.0 * 4 + 2] = 0;
+                            buffer[it.0 * 4 + 3] = 1;
+                        }
+                        Some(result) => {
+                            buffer[it.0 * 4] = result.1.x as u8;
+                            buffer[it.0 * 4 + 1] = result.1.y as u8;
+                            buffer[it.0 * 4 + 2] = result.1.z as u8;
+                            buffer[it.0 * 4 + 3] = 1;
+                        }
                     });
             });
 
