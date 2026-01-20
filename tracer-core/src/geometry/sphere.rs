@@ -83,13 +83,13 @@ mod tests {
         };
 
         let sphere = Sphere {
-            actor: Actor::new(&Vec3::new(2., 1., 0.)),
+            actor: Actor::new(Vec3::new(2., 1., 0.)),
             color: COLOR,
             radius: 1.,
         };
 
         let light = Light {
-            actor: Actor::new(&Vec3::new(0., 0., 0.)),
+            actor: Actor::new(Vec3::new(0., 0., 0.)),
             direction: Vec3::new(0., -1., 0.),
             radius: 50.,
             color: Vec4::new(0., 0., 255., 1.),
@@ -103,7 +103,7 @@ mod tests {
         };
 
         let sphere = Sphere {
-            actor: Actor::new(&Vec3::new(-2., 1., 0.)),
+            actor: Actor::new(Vec3::new(-2., 1., 0.)),
             color: COLOR,
             radius: 1.,
         };
@@ -122,13 +122,13 @@ mod tests {
         const VOID: Vec4 = Vec4::new(0., 0., 0., 0.);
 
         let sphere = Sphere {
-            actor: Actor::new(&Vec3::new(-2., 1., 0.)),
+            actor: Actor::new(Vec3::new(-2., 1., 0.)),
             color: COLOR,
             radius: 1.,
         };
 
         let light = Light {
-            actor: Actor::new(&Vec3::new(0., 0., 0.)),
+            actor: Actor::new(Vec3::new(0., 0., 0.)),
             direction: Vec3::new(0., -1., 0.),
             radius: 50.,
             color: Vec4::new(0., 0., 255., 1.),
@@ -142,7 +142,7 @@ mod tests {
         };
 
         let sphere = Sphere {
-            actor: Actor::new(&Vec3::new(-2., 1., 0.)),
+            actor: Actor::new(Vec3::new(-2., 1., 0.)),
             color: COLOR,
             radius: 1.,
         };

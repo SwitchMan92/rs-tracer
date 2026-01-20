@@ -3,7 +3,6 @@ use glam::Vec3;
 use crate::geometry::Geometry;
 
 /// base 'class' inherited by any object allowing interaction with the current scene.
-#[derive(Clone, Debug)]
 pub struct Actor {
     pub position: Vec3,
 }
@@ -20,9 +19,9 @@ impl ActorTrait for Actor {
 }
 
 impl Actor {
-    pub const fn new(position: &Vec3) -> Self {
+    pub const fn new(position: Vec3) -> Self {
         Self {
-            position: *position,
+            position: position,
         }
     }
 }
