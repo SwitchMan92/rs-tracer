@@ -27,11 +27,7 @@ pub fn main() {
     );
     scene.renderables.push(&light);
 
-    let sphere: Sphere = Sphere {
-        actor: Actor::new(&Vec3::new(0., 100., 0.)),
-        radius: 50.,
-        color: Vec4::new(0., 255., 0., 1.),
-    };
+    let sphere: Sphere = Sphere::new(&Vec3::new(0., 100., 0.), 50., Vec4::new(0., 255., 0., 1.));
     scene.renderables.push(&sphere);
 
     let plane: Plane = Plane::new(

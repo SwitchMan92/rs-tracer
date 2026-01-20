@@ -1,6 +1,5 @@
 use glam::Vec3;
 
-
 // #####################################
 
 /// base 'class' inherited by any object allowing interaction with the current scene.
