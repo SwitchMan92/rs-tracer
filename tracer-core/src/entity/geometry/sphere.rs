@@ -1,7 +1,7 @@
-use crate::geometry::Geometry;
-use crate::geometry::actor::{Actor, ActorTrait, ActorWithGeometry};
-use crate::rendering::light::Light;
-use crate::rendering::ray::Ray;
+use crate::entity::actor::{Actor, ActorTrait, DirectionalActorTrait};
+use crate::entity::geometry::ActorWithGeometry;
+use crate::entity::geometry::{Geometry, ray::Ray};
+use crate::entity::rendering::light::Light;
 
 use glam::{Vec3, Vec4};
 
@@ -19,9 +19,19 @@ impl std::ops::Deref for Sphere {
     }
 }
 
+impl Sphere {
+    pub const fn new(position: &Vec3, radius: f32, color: Vec4) -> Self {
+        Self {
+            actor: Actor::new(position),
+            radius: radius,
+            color: color,
+        }
+    }
+}
+
 impl ActorTrait for Sphere {
     fn get_position(&self) -> Vec3 {
-        self.position
+        self.actor.get_position()
     }
 }
 
@@ -30,8 +40,8 @@ impl Geometry for Sphere {
     fn intersect(&self, ray: &Ray, light: &Light) -> Vec4 {
         const VOID: Vec4 = Vec4::new(0., 0., 0., 0.);
 
-        let d = ray.direction;
-        let f = ray.origin - self.position;
+        let d = ray.get_direction();
+        let f = ray.get_position() - self.position;
 
         let a = d.dot(d);
         let b = 2. * f.dot(d);
@@ -48,8 +58,8 @@ impl Geometry for Sphere {
                 let t2 = (-b + x) / (2. * a);
 
                 if (0. ..=1.).contains(&t1) || (0. ..=1.).contains(&t2) || (t1 < 0. && t2 > 1.) {
-                    let ray_vec = (ray.origin + ray.direction).normalize();
-                    let light_vec = (light.position + light.direction).normalize();
+                    let ray_vec = (ray.get_position() + ray.get_direction()).normalize();
+                    let light_vec = (light.get_position() + light.get_direction()).normalize();
 
                     let product = ray_vec.dot(light_vec);
                     return self.color * product;
@@ -63,13 +73,16 @@ impl Geometry for Sphere {
 
 impl ActorWithGeometry for Sphere {}
 
+// #####################################
+
 #[cfg(test)]
 mod tests {
     use glam::{Vec3, Vec4};
 
-    use crate::{
-        geometry::{Geometry, actor::Actor, sphere::Sphere},
-        rendering::{light::Light, ray::Ray},
+    use crate::entity::{
+        actor::Actor,
+        geometry::{Geometry, ray::Ray, sphere::Sphere},
+        rendering::light::Light,
     };
 
     #[test]
@@ -77,30 +90,20 @@ mod tests {
         const COLOR: Vec4 = Vec4::new(255., 255., 255., 0.);
         const VOID: Vec4 = Vec4::new(0., 0., 0., 0.);
 
-        let ray = Ray {
-            origin: Vec3::new(0., 2., 0.),
-            direction: Vec3::new(1., -1., 0.),
-        };
+        let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(1., -1., 0.));
 
-        let sphere = Sphere {
-            actor: Actor::new(&Vec3::new(2., 1., 0.)),
-            color: COLOR,
-            radius: 1.,
-        };
+        let sphere = Sphere::new(&Vec3::new(2., 1., 0.), 1., COLOR);
 
-        let light = Light {
-            actor: Actor::new(&Vec3::new(0., 0., 0.)),
-            direction: Vec3::new(0., -1., 0.),
-            radius: 50.,
-            color: Vec4::new(0., 0., 255., 1.),
-        };
+        let light = Light::new(
+            &Vec3::new(0., 0., 0.),
+            &Vec3::new(0., -1., 0.),
+            50.,
+            Vec4::new(0., 0., 255., 1.),
+        );
 
         assert!(sphere.intersect(&ray, &light) != VOID);
 
-        let ray = Ray {
-            origin: Vec3::new(0., 2., 0.),
-            direction: Vec3::new(-1., -1., 0.),
-        };
+        let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(-1., -1., 0.));
 
         let sphere = Sphere {
             actor: Actor::new(&Vec3::new(-2., 1., 0.)),
@@ -111,41 +114,29 @@ mod tests {
         assert!(sphere.intersect(&ray, &light) != VOID);
     }
 
+    // #####################################
+
     #[test]
     fn test_failure_intersect() {
-        let ray = Ray {
-            origin: Vec3::new(0., 2., 0.),
-            direction: Vec3::new(1., 1., 0.),
-        };
+        let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(1., 1., 0.));
 
         const COLOR: Vec4 = Vec4::new(255., 255., 255., 0.);
         const VOID: Vec4 = Vec4::new(0., 0., 0., 0.);
 
-        let sphere = Sphere {
-            actor: Actor::new(&Vec3::new(-2., 1., 0.)),
-            color: COLOR,
-            radius: 1.,
-        };
+        let sphere = Sphere::new(&Vec3::new(-2., 1., 0.), 1., COLOR);
 
-        let light = Light {
-            actor: Actor::new(&Vec3::new(0., 0., 0.)),
-            direction: Vec3::new(0., -1., 0.),
-            radius: 50.,
-            color: Vec4::new(0., 0., 255., 1.),
-        };
+        let light = Light::new(
+            &Vec3::new(0., 0., 0.),
+            &Vec3::new(0., -1., 0.),
+            50.,
+            Vec4::new(0., 0., 255., 1.),
+        );
 
         assert_eq!(sphere.intersect(&ray, &light), VOID);
 
-        let ray = Ray {
-            origin: Vec3::new(0., 2., 0.),
-            direction: Vec3::new(-1., 1., 0.),
-        };
+        let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(-1., 1., 0.));
 
-        let sphere = Sphere {
-            actor: Actor::new(&Vec3::new(-2., 1., 0.)),
-            color: COLOR,
-            radius: 1.,
-        };
+        let sphere = Sphere::new(&Vec3::new(-2., 1., 0.), 1., COLOR);
 
         assert_eq!(sphere.intersect(&ray, &light), VOID);
     }

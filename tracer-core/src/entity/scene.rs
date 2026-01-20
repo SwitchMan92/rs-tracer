@@ -1,9 +1,9 @@
 use glam::Vec4;
 
-use crate::geometry::Geometry;
-use crate::geometry::actor::ActorWithGeometry;
-use crate::rendering::light::Light;
-use crate::rendering::ray::Ray;
+use crate::entity::{
+    geometry::{ActorWithGeometry, Geometry, ray::Ray},
+    rendering::light::Light,
+};
 
 /// Container structure representing the scene's composition.
 pub struct Scene<'a> {
