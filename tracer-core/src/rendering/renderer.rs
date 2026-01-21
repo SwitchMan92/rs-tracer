@@ -39,6 +39,7 @@ impl<'a> Renderer<'a> {
         }
     }
 
+    #[inline]
     fn apply_msaa(&self, buffer: &mut [u8], temp_buffer: &Vec<u8>) {
         let x_offset = self.w * 4;
         let slice_end = buffer.len() - x_offset - 4;

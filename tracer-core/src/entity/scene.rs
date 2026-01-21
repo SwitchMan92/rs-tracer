@@ -66,7 +66,7 @@ impl<'a> Renderable for Scene<'a> {
 }
 
 impl<'a> Scene<'a> {
-    pub fn new(ambient: &Vec4) -> Self {
+    pub const fn new(ambient: &Vec4) -> Self {
         Self {
             renderables: Vec::new(),
             ambient: *ambient,
