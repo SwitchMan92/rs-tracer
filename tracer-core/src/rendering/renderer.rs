@@ -39,6 +39,24 @@ impl<'a> Renderer<'a> {
         }
     }
 
+    fn apply_msaa(&self, buffer: &mut [u8], temp_buffer: &Vec<u8>) {
+        let x_offset = self.w * 4;
+        let slice_end = buffer.len() - x_offset - 4;
+
+        (x_offset + 4..slice_end).for_each(|x| {
+            buffer[x] = ((temp_buffer[x - x_offset - 4] as u16
+                + temp_buffer[x - x_offset] as u16
+                + temp_buffer[x - x_offset + 4] as u16
+                + temp_buffer[x - 4] as u16
+                + temp_buffer[x] as u16
+                + temp_buffer[x + 4] as u16
+                + temp_buffer[x + x_offset - 4] as u16
+                + temp_buffer[x + x_offset] as u16
+                + temp_buffer[x + x_offset + 4] as u16)
+                / 9) as u8;
+        });
+    }
+
     /// Reorder the scene's objects using the depth of the camera (z-order),
     /// then draw each object on the window surface, from the furthest to the nearest.
     pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, light: &Light) {
@@ -70,22 +88,7 @@ impl<'a> Renderer<'a> {
                             temp_buffer[it.0 * 4 + 3] = result.w as u8;
                         }
                     });
-
-                let x_offset = self.w * 4;
-                let slice_end = buffer.len() - x_offset - 4;
-
-                (x_offset + 4..slice_end).for_each(|x| {
-                    buffer[x] = ((temp_buffer[x - x_offset - 4] as u16
-                        + temp_buffer[x - x_offset] as u16
-                        + temp_buffer[x - x_offset + 4] as u16
-                        + temp_buffer[x - 4] as u16
-                        + temp_buffer[x] as u16
-                        + temp_buffer[x + 4] as u16
-                        + temp_buffer[x + x_offset - 4] as u16
-                        + temp_buffer[x + x_offset] as u16
-                        + temp_buffer[x + x_offset + 4] as u16)
-                        / 9) as u8;
-                });
+                self.apply_msaa(buffer, &temp_buffer);
             });
 
             let _ = surface.finish();
