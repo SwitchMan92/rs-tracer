@@ -25,12 +25,12 @@ impl<'a> Renderable for Scene<'a> {
         let mut renderable_index: usize = 0;
 
         self.renderables.iter().enumerate().for_each(|x| {
-            if let Some(hit) = x.1.intersect(ray, ray_type) {
-                if t_min.is_nan() || hit.0 < t_min {
-                    t_min = hit.0;
-                    renderable_index = x.0;
-                    result_color = hit.2;
-                }
+            if let Some(hit) = x.1.intersect(ray, ray_type)
+                && (t_min.is_nan() || hit.0 < t_min)
+            {
+                t_min = hit.0;
+                renderable_index = x.0;
+                result_color = hit.2;
             };
         });
 
@@ -50,7 +50,7 @@ impl<'a> Renderable for Scene<'a> {
                         .iter()
                         .enumerate()
                         .filter(|x| x.0 != renderable_index)
-                        .filter(|x| match x.1.intersect(&light_ray, &RayType::LIGHT) {
+                        .filter(|x| match x.1.intersect(&light_ray, &RayType::Light) {
                             Some(hit) => hit.0 >= t_min,
                             None => true,
                         })

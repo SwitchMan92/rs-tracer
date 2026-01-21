@@ -26,7 +26,7 @@ pub fn main() {
     let mut scene: Scene = Scene::new(&Vec4::new(10., 10., 10., 1.));
 
     let light = Light::new(
-        &Vec3::new(0., 200., 50.),
+        &Vec3::new(200., 200., 50.),
         &Vec3::new(0., -1., 0.),
         50.,
         Vec4::new(0., 255., 255., 1.),

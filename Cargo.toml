@@ -6,4 +6,3 @@ members = ["tracer-core"]
 glam = "0.30.10"
 range2d = "0.2.0"
 sdl2 = "0.38.0"
-rand = "0.8.5"

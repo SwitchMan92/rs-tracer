@@ -8,8 +8,8 @@ use crate::entity::actor::ActorTrait;
 use crate::entity::geometry::ray::Ray;
 
 pub enum RayType {
-    CAMERA,
-    LIGHT,
+    Camera,
+    Light,
 }
 
 /// Base traits used to allow handling of graphical interactions by a given scene.

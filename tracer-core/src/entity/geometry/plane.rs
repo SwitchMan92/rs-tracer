@@ -49,7 +49,7 @@ impl Geometry for Plane {
                     (self.get_position() - ray.get_position()).dot(self.get_direction()) / n_dot_l;
 
                 match ray_type {
-                    RayType::CAMERA => match t {
+                    RayType::Camera => match t {
                         x if x < 1. => None,
                         _ => Some((
                             t,
@@ -57,7 +57,7 @@ impl Geometry for Plane {
                             self.color * t,
                         )),
                     },
-                    RayType::LIGHT => match t {
+                    RayType::Light => match t {
                         x if (0.0001..=1.).contains(&x) => Some((
                             t,
                             ray.get_position() + t * ray.get_direction(),
@@ -103,6 +103,6 @@ mod tests {
             Vec4::new(0., 0., 255., 1.),
         );
 
-        assert!(plane.intersect(&ray, &RayType::CAMERA) != None);
+        assert!(plane.intersect(&ray, &RayType::Camera) != None);
     }
 }
