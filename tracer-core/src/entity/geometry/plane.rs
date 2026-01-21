@@ -82,7 +82,6 @@ mod tests {
     use crate::entity::{
         actor::DirectionalActor,
         geometry::{Geometry, RayType, plane::Plane, ray::Ray},
-        rendering::light::Light,
     };
 
     #[test]
@@ -95,13 +94,6 @@ mod tests {
             dir_actor: DirectionalActor::new(&Vec3::new(2., 1., 0.), &Vec3::new(2., 1., 0.)),
             color: COLOR,
         };
-
-        let light = Light::new(
-            &Vec3::new(0., 100., 0.),
-            &Vec3::new(0., -1., 0.),
-            50.,
-            Vec4::new(0., 0., 255., 1.),
-        );
 
         assert!(plane.intersect(&ray, &RayType::Camera) != None);
     }

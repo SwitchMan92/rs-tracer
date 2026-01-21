@@ -97,24 +97,15 @@ mod tests {
     use crate::entity::{
         actor::Actor,
         geometry::{Geometry, RayType, ray::Ray, sphere::Sphere},
-        rendering::light::Light,
     };
 
     #[test]
     fn test_success_intersect() {
         const COLOR: Vec4 = Vec4::new(255., 255., 255., 0.);
-        const VOID: Vec4 = Vec4::new(0., 0., 0., 0.);
 
         let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(1., -1., 0.));
 
         let sphere = Sphere::new(&Vec3::new(2., 1., 0.), 1., COLOR);
-
-        let light = Light::new(
-            &Vec3::new(0., 0., 0.),
-            &Vec3::new(0., -1., 0.),
-            50.,
-            Vec4::new(0., 0., 255., 1.),
-        );
 
         assert!(sphere.intersect(&ray, &RayType::Camera) != None);
 
@@ -136,16 +127,8 @@ mod tests {
         let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(1., 1., 0.));
 
         const COLOR: Vec4 = Vec4::new(255., 255., 255., 0.);
-        const VOID: Vec4 = Vec4::new(0., 0., 0., 0.);
 
         let sphere = Sphere::new(&Vec3::new(-2., 1., 0.), 1., COLOR);
-
-        let light = Light::new(
-            &Vec3::new(0., 0., 0.),
-            &Vec3::new(0., -1., 0.),
-            50.,
-            Vec4::new(0., 0., 255., 1.),
-        );
 
         assert_eq!(sphere.intersect(&ray, &RayType::Camera), None);
 

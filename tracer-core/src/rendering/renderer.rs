@@ -39,7 +39,6 @@ impl<'a> Renderer<'a> {
         }
     }
 
-    #[inline]
     fn apply_msaa(&self, buffer: &mut [u8], temp_buffer: &Vec<u8>) {
         let x_offset = self.w * 4;
         let slice_end = buffer.len() - x_offset - 4;
@@ -58,8 +57,7 @@ impl<'a> Renderer<'a> {
         });
     }
 
-    /// Reorder the scene's objects using the depth of the camera (z-order),
-    /// then draw each object on the window surface, from the furthest to the nearest.
+    /// Draw each object on the window surface, from the furthest to the nearest.
     pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, light: &Light) {
         let mut event_pump = self.sdl_context.event_pump().unwrap();
 

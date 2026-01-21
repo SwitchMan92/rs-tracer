@@ -17,7 +17,7 @@ pub trait Renderable {
     fn render(&self, ray: &Ray, light: &Light, ray_type: &RayType) -> Option<Vec4>;
 }
 
-impl<'a> Renderable for Scene<'a> {
+impl Renderable for Scene<'_> {
     //// Iterate through the scene's renderable objects, and calculates the ray emitter ray's final color.
     fn render(&self, ray: &Ray, light: &Light, ray_type: &RayType) -> Option<Vec4> {
         let mut result_color = Vec4::new(0., 0., 0., 0.);
@@ -31,7 +31,7 @@ impl<'a> Renderable for Scene<'a> {
                 t_min = hit.0;
                 renderable_index = x.0;
                 result_color = hit.2;
-            };
+            }
         });
 
         match t_min.is_nan() {
@@ -65,7 +65,7 @@ impl<'a> Renderable for Scene<'a> {
     }
 }
 
-impl<'a> Scene<'a> {
+impl Scene<'_> {
     pub const fn new(ambient: &Vec4) -> Self {
         Self {
             renderables: Vec::new(),
