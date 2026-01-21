@@ -3,7 +3,7 @@ use std::process;
 
 use crate::{
     entity::{
-        geometry::{Geometry, RayType},
+        geometry::RayType,
         rendering::light::Light,
         scene::{Renderable, Scene},
     },

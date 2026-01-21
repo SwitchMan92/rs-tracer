@@ -1,8 +1,5 @@
 use core::f32;
-use std::ops::Deref;
-
-use glam::{Vec4, vec4};
-use sdl2::render;
+use glam::Vec4;
 
 use crate::entity::{
     actor::{ActorTrait, DirectionalActorTrait},
@@ -28,15 +25,12 @@ impl<'a> Renderable for Scene<'a> {
         let mut renderable_index: usize = 0;
 
         self.renderables.iter().enumerate().for_each(|x| {
-            match x.1.intersect(ray, ray_type) {
-                Some(hit) => {
-                    if t_min.is_nan() || hit.0 < t_min {
-                        t_min = hit.0;
-                        renderable_index = x.0;
-                        result_color = hit.2;
-                    }
+            if let Some(hit) = x.1.intersect(ray, ray_type) {
+                if t_min.is_nan() || hit.0 < t_min {
+                    t_min = hit.0;
+                    renderable_index = x.0;
+                    result_color = hit.2;
                 }
-                None => {}
             };
         });
 
@@ -57,7 +51,7 @@ impl<'a> Renderable for Scene<'a> {
                         .enumerate()
                         .filter(|x| x.0 != renderable_index)
                         .filter(|x| match x.1.intersect(&light_ray, &RayType::LIGHT) {
-                            Some(hit) => !(hit.0 < t_min),
+                            Some(hit) => hit.0 >= t_min,
                             None => true,
                         })
                         .count() as f32,
