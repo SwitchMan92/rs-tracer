@@ -86,7 +86,6 @@ impl<'a> Renderer<'a> {
                         + temp_buffer[x + x_offset + 4] as u16)
                         / 9) as u8;
                 });
-                // buffer.copy_from_slice(temp_buffer.as_slice());
             });
 
             let _ = surface.finish();
