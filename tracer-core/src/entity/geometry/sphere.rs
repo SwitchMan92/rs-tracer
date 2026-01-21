@@ -60,7 +60,7 @@ impl Geometry for Sphere {
                 let t1 = (-b + x) / (2. * a);
 
                 let t = match ray_type {
-                    RayType::CAMERA => {
+                    RayType::Camera => {
                         if t0 > 1. {
                             Some(t0)
                         } else if t1 > 1. {
@@ -69,7 +69,7 @@ impl Geometry for Sphere {
                             None
                         }
                     }
-                    RayType::LIGHT => {
+                    RayType::Light => {
                         if (0.0001..=1.).contains(&t0) {
                             Some(t0)
                         } else if (0.0001..=1.).contains(&t1) {
@@ -116,7 +116,7 @@ mod tests {
             Vec4::new(0., 0., 255., 1.),
         );
 
-        assert!(sphere.intersect(&ray, &RayType::CAMERA) != None);
+        assert!(sphere.intersect(&ray, &RayType::Camera) != None);
 
         let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(-1., -1., 0.));
 
@@ -126,7 +126,7 @@ mod tests {
             radius: 1.,
         };
 
-        assert!(sphere.intersect(&ray, &RayType::CAMERA) != None);
+        assert!(sphere.intersect(&ray, &RayType::Camera) != None);
     }
 
     // #####################################
@@ -147,12 +147,12 @@ mod tests {
             Vec4::new(0., 0., 255., 1.),
         );
 
-        assert_eq!(sphere.intersect(&ray, &RayType::CAMERA), None);
+        assert_eq!(sphere.intersect(&ray, &RayType::Camera), None);
 
         let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(-1., 1., 0.));
 
         let sphere = Sphere::new(&Vec3::new(-2., 1., 0.), 1., COLOR);
 
-        assert_eq!(sphere.intersect(&ray, &RayType::CAMERA), None);
+        assert_eq!(sphere.intersect(&ray, &RayType::Camera), None);
     }
 }
