@@ -2,8 +2,7 @@ use glam::{Vec3, Vec4};
 
 use crate::entity::{
     actor::ActorTrait,
-    geometry::{ActorWithGeometry, Geometry, ray::Ray},
-    rendering::light::Light,
+    geometry::{ActorWithGeometry, Geometry, RayType, ray::Ray}
 };
 
 /// Container structure representing the scene's composition.
@@ -21,12 +20,12 @@ impl<'a> Scene<'a> {
 
 impl<'a> Geometry for Scene<'a> {
     //// Iterate through the scene's renderable objects, and calculates the ray emitter ray's final color.
-    fn intersect(&self, ray: &Ray, light: &Light) -> Option<(Vec3, Vec4)> {
+    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(Vec3, Vec4)> {
         let mut result_color = Vec4::new(0., 0., 0., 0.);
         let mut result_depth = Vec3::NAN;
 
         self.renderables.iter().for_each(|x| {
-            match x.intersect(ray, light) {
+            match x.intersect(ray, ray_type) {
                 Some(hit) => {
                     if result_depth.is_nan()
                         || hit.0.distance(ray.get_position())

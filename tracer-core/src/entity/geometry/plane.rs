@@ -2,8 +2,7 @@ use glam::{Vec3, Vec4};
 
 use crate::entity::{
     actor::{ActorTrait, DirectionalActor, DirectionalActorTrait},
-    geometry::{ActorWithGeometry, Geometry, ray::Ray},
-    rendering::light::Light,
+    geometry::{ActorWithGeometry, Geometry, RayType, ray::Ray},
 };
 
 /// Structure representing a Planar surface.
@@ -36,7 +35,7 @@ impl ActorTrait for Plane {
 
 impl Geometry for Plane {
     //// check if the ray intersects with the current plane structure and return the ray's color post-interaction.
-    fn intersect(&self, ray: &Ray, _light: &Light) -> Option<(Vec3, Vec4)> {
+    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(Vec3, Vec4)> {
         let n_dot_l = ray.get_direction().dot(self.get_direction());
         match n_dot_l {
             x if x < 0.001 => None,
@@ -44,9 +43,17 @@ impl Geometry for Plane {
                 let t =
                     (self.get_position() - ray.get_position()).dot(self.get_direction()) / n_dot_l;
 
-                match t {
-                    x if x < 1. => None,
-                    _ => Some((ray.get_position() + t * ray.get_direction(), self.color * t)),
+                match ray_type {
+                    RayType::CAMERA => match t {
+                        x if x < 1. => None,
+                        _ => Some((ray.get_position() + t * ray.get_direction(), self.color * t)),
+                    },
+                    RayType::LIGHT => match t {
+                        x if (0.0001..=1.).contains(&x) => {
+                            Some((ray.get_position() + t * ray.get_direction(), self.color * t))
+                        }
+                        _ => None,
+                    },
                 }
             }
         }
@@ -63,7 +70,7 @@ mod tests {
 
     use crate::entity::{
         actor::DirectionalActor,
-        geometry::{Geometry, plane::Plane, ray::Ray},
+        geometry::{Geometry, RayType, plane::Plane, ray::Ray},
         rendering::light::Light,
     };
 
@@ -85,6 +92,6 @@ mod tests {
             Vec4::new(0., 0., 255., 1.),
         );
 
-        assert!(plane.intersect(&ray, &light) != None);
+        assert!(plane.intersect(&ray, &RayType::CAMERA) != None);
     }
 }

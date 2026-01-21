@@ -3,7 +3,7 @@ use glam::{Vec3, Vec4};
 use crate::entity::actor::{ActorTrait, DirectionalActorTrait};
 use crate::entity::geometry::ray::Ray;
 use crate::entity::geometry::sphere::Sphere;
-use crate::entity::geometry::{ActorWithGeometry, Geometry};
+use crate::entity::geometry::{ActorWithGeometry, Geometry, RayType};
 
 /// Structure holding a given light's representation.
 pub struct Light {
@@ -41,8 +41,8 @@ impl DirectionalActorTrait for Light {
 
 impl Geometry for Light {
     /// Render the light object as a sphere, mostly for scene's debugging purpose.
-    fn intersect(&self, ray: &Ray, light: &Light) -> Option<(Vec3, Vec4)> {
-        self.geometry.intersect(ray, light)
+    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(Vec3, Vec4)> {
+        self.geometry.intersect(ray, ray_type)
     }
 }
 

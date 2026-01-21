@@ -2,7 +2,11 @@ use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
 use std::process;
 
 use crate::{
-    entity::{geometry::Geometry, rendering::light::Light, scene::Scene},
+    entity::{
+        geometry::{Geometry, RayType},
+        rendering::light::Light,
+        scene::Scene,
+    },
     rendering::ray_emitter::RayEmitter,
 };
 
@@ -33,7 +37,7 @@ impl<'a> Renderer<'a> {
 
     /// Reorder the scene's objects using the depth of the camera (z-order),
     /// then draw each object on the window surface, from the furthest to the nearest.
-    pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, light: &Light) {
+    pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, _light: &Light) {
         let mut event_pump = self.sdl_context.event_pump().unwrap();
 
         {
@@ -43,7 +47,7 @@ impl<'a> Renderer<'a> {
                 ray_emitter
                     .rays
                     .iter()
-                    .map(|ray| scene.intersect(ray, light))
+                    .map(|ray| scene.intersect(ray, &RayType::CAMERA))
                     .enumerate()
                     .for_each(|it| match it.1 {
                         None => {

@@ -6,12 +6,16 @@ use glam::{Vec3, Vec4};
 
 use crate::entity::actor::ActorTrait;
 use crate::entity::geometry::ray::Ray;
-use crate::entity::rendering::light::Light;
+
+pub enum RayType {
+    CAMERA,
+    LIGHT,
+}
 
 /// Base traits used to allow handling of graphical interactions by a given scene.
 pub trait Geometry {
     //// Check collision with a given ray from the ray emitter, return the ray's color post-interaction with the geometry object.
-    fn intersect(&self, ray: &Ray, light: &Light) -> Option<(Vec3, Vec4)>;
+    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(Vec3, Vec4)>;
 }
 
 // #####################################

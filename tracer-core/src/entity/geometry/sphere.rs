@@ -1,7 +1,6 @@
 use crate::entity::actor::{Actor, ActorTrait, DirectionalActorTrait};
-use crate::entity::geometry::ActorWithGeometry;
+use crate::entity::geometry::{ActorWithGeometry, RayType};
 use crate::entity::geometry::{Geometry, ray::Ray};
-use crate::entity::rendering::light::Light;
 
 use glam::{Vec3, Vec4};
 
@@ -37,7 +36,7 @@ impl ActorTrait for Sphere {
 
 impl Geometry for Sphere {
     /// Check line-circle plain intersection and return the ray color post-interaction.
-    fn intersect(&self, ray: &Ray, light: &Light) -> Option<(Vec3, Vec4)> {
+    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(Vec3, Vec4)> {
         let d = ray.get_direction();
         let f = ray.get_position() - self.position;
 
@@ -55,24 +54,28 @@ impl Geometry for Sphere {
                 let t0 = (-b - x) / (2. * a);
                 let t1 = (-b + x) / (2. * a);
 
-                let t: f32;
+                let t = match ray_type {
+                    RayType::CAMERA => {
+                        if t0 > 1. {
+                            Some(t0)
+                        } else if t1 > 1. {
+                            Some(t1)
+                        } else {
+                            None
+                        }
+                    }
+                    RayType::LIGHT => {
+                        if (0.0001..=1.).contains(&t0) {
+                            Some(t0)
+                        } else if (0.0001..=1.).contains(&t1) {
+                            Some(t1)
+                        } else {
+                            None
+                        }
+                    }
+                };
 
-                if t0 > 1. {
-                    t = t0;
-                } else if t1 > 1. {
-                    t = t1
-                } else {
-                    return None;
-                }
-
-                let ray_vec = (ray.get_position() + ray.get_direction()).normalize();
-                let light_vec = (light.get_position() + light.get_direction()).normalize();
-
-                let product = ray_vec.dot(light_vec);
-                return Some((
-                    ray.get_position() + t * ray.get_direction(),
-                    self.color * product,
-                ));
+                t.map(|t| (ray.get_position() + t * ray.get_direction(), self.color))
             }
         }
     }
@@ -88,7 +91,7 @@ mod tests {
 
     use crate::entity::{
         actor::Actor,
-        geometry::{Geometry, ray::Ray, sphere::Sphere},
+        geometry::{Geometry, RayType, ray::Ray, sphere::Sphere},
         rendering::light::Light,
     };
 
@@ -108,7 +111,7 @@ mod tests {
             Vec4::new(0., 0., 255., 1.),
         );
 
-        assert!(sphere.intersect(&ray, &light) != None);
+        assert!(sphere.intersect(&ray, &RayType::CAMERA) != None);
 
         let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(-1., -1., 0.));
 
@@ -118,7 +121,7 @@ mod tests {
             radius: 1.,
         };
 
-        assert!(sphere.intersect(&ray, &light) != None);
+        assert!(sphere.intersect(&ray, &RayType::CAMERA) != None);
     }
 
     // #####################################
@@ -139,12 +142,12 @@ mod tests {
             Vec4::new(0., 0., 255., 1.),
         );
 
-        assert_eq!(sphere.intersect(&ray, &light), None);
+        assert_eq!(sphere.intersect(&ray, &RayType::CAMERA), None);
 
         let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(-1., 1., 0.));
 
         let sphere = Sphere::new(&Vec3::new(-2., 1., 0.), 1., COLOR);
 
-        assert_eq!(sphere.intersect(&ray, &light), None);
+        assert_eq!(sphere.intersect(&ray, &RayType::CAMERA), None);
     }
 }
