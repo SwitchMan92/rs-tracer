@@ -34,8 +34,13 @@ impl ActorTrait for Plane {
 }
 
 impl Geometry for Plane {
+    //// Return the plane's normal vector.
+    fn get_surface_normal(&self, _point: &Vec3) -> Vec3 {
+        self.get_direction()
+    }
+
     //// check if the ray intersects with the current plane structure and return the ray's color post-interaction.
-    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(Vec3, Vec4)> {
+    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3, Vec4)> {
         let n_dot_l = ray.get_direction().dot(self.get_direction());
         match n_dot_l {
             x if x < 0.001 => None,
@@ -46,12 +51,18 @@ impl Geometry for Plane {
                 match ray_type {
                     RayType::CAMERA => match t {
                         x if x < 1. => None,
-                        _ => Some((ray.get_position() + t * ray.get_direction(), self.color * t)),
+                        _ => Some((
+                            t,
+                            ray.get_position() + t * ray.get_direction(),
+                            self.color * t,
+                        )),
                     },
                     RayType::LIGHT => match t {
-                        x if (0.0001..=1.).contains(&x) => {
-                            Some((ray.get_position() + t * ray.get_direction(), self.color * t))
-                        }
+                        x if (0.0001..=1.).contains(&x) => Some((
+                            t,
+                            ray.get_position() + t * ray.get_direction(),
+                            self.color * t,
+                        )),
                         _ => None,
                     },
                 }

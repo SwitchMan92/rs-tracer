@@ -40,8 +40,12 @@ impl DirectionalActorTrait for Light {
 }
 
 impl Geometry for Light {
+    fn get_surface_normal(&self, point: &Vec3) -> Vec3 {
+        self.geometry.get_surface_normal(point)
+    }
+
     /// Render the light object as a sphere, mostly for scene's debugging purpose.
-    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(Vec3, Vec4)> {
+    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3, Vec4)> {
         self.geometry.intersect(ray, ray_type)
     }
 }

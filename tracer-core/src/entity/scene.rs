@@ -1,47 +1,81 @@
-use glam::{Vec3, Vec4};
+use core::f32;
+use std::ops::Deref;
+
+use glam::{Vec4, vec4};
+use sdl2::render;
 
 use crate::entity::{
-    actor::ActorTrait,
-    geometry::{ActorWithGeometry, Geometry, RayType, ray::Ray}
+    actor::{ActorTrait, DirectionalActorTrait},
+    geometry::{ActorWithGeometry, RayType, ray::Ray},
+    rendering::light::Light,
 };
 
 /// Container structure representing the scene's composition.
 pub struct Scene<'a> {
     pub renderables: Vec<&'a dyn ActorWithGeometry>,
+    pub ambient: Vec4,
 }
 
-impl<'a> Scene<'a> {
-    pub fn new() -> Self {
-        Self {
-            renderables: Vec::new(),
-        }
-    }
+pub trait Renderable {
+    fn render(&self, ray: &Ray, light: &Light, ray_type: &RayType) -> Option<Vec4>;
 }
 
-impl<'a> Geometry for Scene<'a> {
+impl<'a> Renderable for Scene<'a> {
     //// Iterate through the scene's renderable objects, and calculates the ray emitter ray's final color.
-    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(Vec3, Vec4)> {
+    fn render(&self, ray: &Ray, light: &Light, ray_type: &RayType) -> Option<Vec4> {
         let mut result_color = Vec4::new(0., 0., 0., 0.);
-        let mut result_depth = Vec3::NAN;
+        let mut t_min = f32::NAN;
+        let mut renderable_index: usize = 0;
 
-        self.renderables.iter().for_each(|x| {
-            match x.intersect(ray, ray_type) {
+        self.renderables.iter().enumerate().for_each(|x| {
+            match x.1.intersect(ray, ray_type) {
                 Some(hit) => {
-                    if result_depth.is_nan()
-                        || hit.0.distance(ray.get_position())
-                            > result_depth.distance(ray.get_position())
-                    {
-                        result_depth = hit.0;
-                        result_color = hit.1;
+                    if t_min.is_nan() || hit.0 < t_min {
+                        t_min = hit.0;
+                        renderable_index = x.0;
+                        result_color = hit.2;
                     }
                 }
                 None => {}
             };
         });
 
-        match result_depth.is_nan() {
-            true => None,
-            false => Some((result_depth, result_color)),
+        match t_min.is_nan() {
+            true => Some(self.ambient),
+            false => {
+                let intersection_point = ray.get_direction() * t_min + ray.get_position();
+                let normal =
+                    self.renderables[renderable_index].get_surface_normal(&intersection_point);
+                let light_ray = Ray::new(
+                    &intersection_point,
+                    &(light.get_position() - intersection_point),
+                );
+
+                let see_light = f32::min(
+                    self.renderables
+                        .iter()
+                        .enumerate()
+                        .filter(|x| x.0 != renderable_index)
+                        .filter(|x| match x.1.intersect(&light_ray, &RayType::LIGHT) {
+                            Some(hit) => !(hit.0 < t_min),
+                            None => true,
+                        })
+                        .count() as f32,
+                    1.,
+                );
+                let dot = light_ray.get_direction().dot(normal);
+                let diffuse = result_color * f32::max(0., dot);
+                Some(diffuse * self.ambient * see_light)
+            }
+        }
+    }
+}
+
+impl<'a> Scene<'a> {
+    pub fn new(ambient: &Vec4) -> Self {
+        Self {
+            renderables: Vec::new(),
+            ambient: *ambient,
         }
     }
 }

@@ -35,8 +35,13 @@ impl ActorTrait for Sphere {
 }
 
 impl Geometry for Sphere {
+    //// Return the sphere's normal vector.
+    fn get_surface_normal(&self, point: &Vec3) -> Vec3 {
+        return (point - self.get_position()) / self.radius;
+    }
+
     /// Check line-circle plain intersection and return the ray color post-interaction.
-    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(Vec3, Vec4)> {
+    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3, Vec4)> {
         let d = ray.get_direction();
         let f = ray.get_position() - self.position;
 
@@ -75,7 +80,7 @@ impl Geometry for Sphere {
                     }
                 };
 
-                t.map(|t| (ray.get_position() + t * ray.get_direction(), self.color))
+                t.map(|t| (t, ray.get_position() + t * ray.get_direction(), self.color))
             }
         }
     }

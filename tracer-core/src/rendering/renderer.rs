@@ -5,7 +5,7 @@ use crate::{
     entity::{
         geometry::{Geometry, RayType},
         rendering::light::Light,
-        scene::Scene,
+        scene::{Renderable, Scene},
     },
     rendering::ray_emitter::RayEmitter,
 };
@@ -37,7 +37,7 @@ impl<'a> Renderer<'a> {
 
     /// Reorder the scene's objects using the depth of the camera (z-order),
     /// then draw each object on the window surface, from the furthest to the nearest.
-    pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, _light: &Light) {
+    pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, light: &Light) {
         let mut event_pump = self.sdl_context.event_pump().unwrap();
 
         {
@@ -47,7 +47,7 @@ impl<'a> Renderer<'a> {
                 ray_emitter
                     .rays
                     .iter()
-                    .map(|ray| scene.intersect(ray, &RayType::CAMERA))
+                    .map(|ray| scene.render(ray, light, &RayType::CAMERA))
                     .enumerate()
                     .for_each(|it| match it.1 {
                         None => {
@@ -57,10 +57,10 @@ impl<'a> Renderer<'a> {
                             buffer[it.0 * 4 + 3] = 1;
                         }
                         Some(result) => {
-                            buffer[it.0 * 4] = result.1.x as u8;
-                            buffer[it.0 * 4 + 1] = result.1.y as u8;
-                            buffer[it.0 * 4 + 2] = result.1.z as u8;
-                            buffer[it.0 * 4 + 3] = 1;
+                            buffer[it.0 * 4] = result.x as u8;
+                            buffer[it.0 * 4 + 1] = result.y as u8;
+                            buffer[it.0 * 4 + 2] = result.z as u8;
+                            buffer[it.0 * 4 + 3] = result.w as u8;
                         }
                     });
             });

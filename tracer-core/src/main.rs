@@ -1,5 +1,6 @@
 use glam::{Vec3, Vec4};
 
+use crate::entity::actor::{ActorTrait, DirectionalActorTrait};
 use crate::entity::geometry::plane::Plane;
 use crate::entity::geometry::sphere::Sphere;
 use crate::entity::rendering::light::Light;
@@ -16,24 +17,23 @@ pub fn main() {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
     let renderer = Renderer::new(&video_subsystem, &sdl_context, RESOLUTION.0, RESOLUTION.1);
-    let ray_emitter = RayEmitter::new(
+    let camera_emitter = RayEmitter::new(
         Vec3::new(0., 0., -10.),
         Vec3::new(0., 0., 1.),
         RESOLUTION.0,
         RESOLUTION.1,
     );
 
-    let mut scene: Scene = Scene::new();
+    let mut scene: Scene = Scene::new(&Vec4::new(10., 10., 10., 1.));
 
     let light = Light::new(
-        &Vec3::new(400., 400., 0.),
+        &Vec3::new(0., 200., 50.),
         &Vec3::new(0., -1., 0.),
         50.,
         Vec4::new(0., 255., 255., 1.),
     );
-    scene.renderables.push(&light);
 
-    let sphere: Sphere = Sphere::new(&Vec3::new(0., 100., 0.), 50., Vec4::new(0., 255., 0., 1.));
+    let sphere: Sphere = Sphere::new(&Vec3::new(0., 0., 0.), 50., Vec4::new(0., 255., 0., 1.));
     scene.renderables.push(&sphere);
 
     let plane: Plane = Plane::new(
@@ -44,6 +44,6 @@ pub fn main() {
     scene.renderables.push(&plane);
 
     loop {
-        renderer.render(&ray_emitter, &mut scene, &light);
+        renderer.render(&camera_emitter, &mut scene, &light);
     }
 }
