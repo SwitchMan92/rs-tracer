@@ -1,4 +1,3 @@
-use rayon::prelude::*;
 use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
 
 use tracer_core::{
@@ -7,7 +6,7 @@ use tracer_core::{
         rendering::light::Light,
         scene::{Renderable, Scene},
     },
-    rendering::ray_emitter::RayEmitter,
+    rendering::{image_filter, ray_emitter::RayEmitter},
 };
 
 /// Structure in charge of managing the window and the window's render target.
@@ -39,30 +38,6 @@ impl<'a> Renderer<'a> {
         }
     }
 
-    fn apply_msaa(&self, buffer: &mut [u8], strides: (i32, i32)) {
-        let x_offset = self.w * 4;
-        let slice_end = buffer.len() - x_offset - 4;
-
-        let test: Vec<u8> = (x_offset + 4..slice_end)
-            .into_par_iter()
-            .map(|x| {
-                let mut accumulator: u16 = 0;
-
-                for row in -strides.0..=strides.0 {
-                    for col in -strides.1..=strides.1 {
-                        accumulator +=
-                            buffer[(x as i32 + (x_offset as i32 * row + col * 4)) as usize] as u16
-                    }
-                }
-
-                accumulator /= ((strides.0 * 2 + 1) * (strides.1 * 2 + 1)) as u16;
-                accumulator as u8
-            })
-            .collect();
-
-        buffer[x_offset + 4..slice_end].copy_from_slice(test.as_slice());
-    }
-
     /// Draw each object on the window surface, from the furthest to the nearest.
     pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, light: &Light) -> bool {
         let mut event_pump = self.sdl_context.event_pump().unwrap();
@@ -90,7 +65,7 @@ impl<'a> Renderer<'a> {
                             buffer[it.0 * 4 + 3] = result.w as u8;
                         }
                     });
-                self.apply_msaa(buffer, (1, 1));
+                image_filter::apply_msaa(self.w, buffer, (1, 1));
             });
 
             let _ = surface.finish();
