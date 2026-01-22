@@ -7,7 +7,7 @@ edition = "2024"
 dhat = { workspace = true }
 glam = { workspace = true }
 range2d = { workspace = true }
-rayon = { workspace = true }
+rayon= { workspace = true }
 sdl2 = { workspace = true }
 
 [features]
