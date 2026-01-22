@@ -1,5 +1,4 @@
 use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
-use std::process;
 
 use crate::{
     entity::{
@@ -39,35 +38,32 @@ impl<'a> Renderer<'a> {
         }
     }
 
-    fn apply_msaa(&self, buffer: &mut [u8], temp_buffer: &Vec<u8>) {
+    fn apply_msaa(&self, buffer: &mut [u8]) {
         let x_offset = self.w * 4;
         let slice_end = buffer.len() - x_offset - 4;
 
         (x_offset + 4..slice_end).for_each(|x| {
-            buffer[x] = ((temp_buffer[x - x_offset - 4] as u16
-                + temp_buffer[x - x_offset] as u16
-                + temp_buffer[x - x_offset + 4] as u16
-                + temp_buffer[x - 4] as u16
-                + temp_buffer[x] as u16
-                + temp_buffer[x + 4] as u16
-                + temp_buffer[x + x_offset - 4] as u16
-                + temp_buffer[x + x_offset] as u16
-                + temp_buffer[x + x_offset + 4] as u16)
+            buffer[x] = ((buffer[x - x_offset - 4] as u16
+                + buffer[x - x_offset] as u16
+                + buffer[x - x_offset + 4] as u16
+                + buffer[x - 4] as u16
+                + buffer[x] as u16
+                + buffer[x + 4] as u16
+                + buffer[x + x_offset - 4] as u16
+                + buffer[x + x_offset] as u16
+                + buffer[x + x_offset + 4] as u16)
                 / 9) as u8;
         });
     }
 
     /// Draw each object on the window surface, from the furthest to the nearest.
-    pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, light: &Light) {
+    pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, light: &Light) -> bool {
         let mut event_pump = self.sdl_context.event_pump().unwrap();
 
         {
             let mut surface = self.window.surface(&event_pump).unwrap();
             surface.enable_RLE();
             surface.with_lock_mut(|buffer: &mut [u8]| {
-                let mut temp_buffer = vec![0; buffer.len()];
-                temp_buffer.clone_from_slice(buffer);
-
                 ray_emitter
                     .rays
                     .iter()
@@ -75,19 +71,19 @@ impl<'a> Renderer<'a> {
                     .enumerate()
                     .for_each(|it| match it.1 {
                         None => {
-                            temp_buffer[it.0 * 4] = 0;
-                            temp_buffer[it.0 * 4 + 1] = 0;
-                            temp_buffer[it.0 * 4 + 2] = 0;
-                            temp_buffer[it.0 * 4 + 3] = 1;
+                            buffer[it.0 * 4] = 0;
+                            buffer[it.0 * 4 + 1] = 0;
+                            buffer[it.0 * 4 + 2] = 0;
+                            buffer[it.0 * 4 + 3] = 1;
                         }
                         Some(result) => {
-                            temp_buffer[it.0 * 4] = result.x as u8;
-                            temp_buffer[it.0 * 4 + 1] = result.y as u8;
-                            temp_buffer[it.0 * 4 + 2] = result.z as u8;
-                            temp_buffer[it.0 * 4 + 3] = result.w as u8;
+                            buffer[it.0 * 4] = result.x as u8;
+                            buffer[it.0 * 4 + 1] = result.y as u8;
+                            buffer[it.0 * 4 + 2] = result.z as u8;
+                            buffer[it.0 * 4 + 3] = result.w as u8;
                         }
                     });
-                self.apply_msaa(buffer, &temp_buffer);
+                self.apply_msaa(buffer);
             });
 
             let _ = surface.finish();
@@ -99,9 +95,10 @@ impl<'a> Renderer<'a> {
                 | Event::KeyDown {
                     keycode: Some(Keycode::Escape),
                     ..
-                } => process::exit(1),
+                } => return true,
                 _ => {}
             }
         }
+        false
     }
 }

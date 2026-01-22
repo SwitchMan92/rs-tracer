@@ -46,6 +46,7 @@ impl ActorTrait for DirectionalActor {
 }
 
 impl DirectionalActorTrait for DirectionalActor {
+    #[inline]
     fn get_direction(&self) -> Vec3 {
         self.direction
     }

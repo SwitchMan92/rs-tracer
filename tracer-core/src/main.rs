@@ -12,7 +12,14 @@ mod rendering;
 
 const RESOLUTION: (u32, u32) = (1000, 1000);
 
+#[cfg(feature = "dhat-heap")]
+#[global_allocator]
+static ALLOC: dhat::Alloc = dhat::Alloc;
+
 pub fn main() {
+    #[cfg(feature = "dhat-heap")]
+    let _profiler = dhat::Profiler::new_heap();
+
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
     let renderer = Renderer::new(&video_subsystem, &sdl_context, RESOLUTION.0, RESOLUTION.1);
@@ -43,6 +50,8 @@ pub fn main() {
     scene.renderables.push(&plane);
 
     loop {
-        renderer.render(&camera_emitter, &mut scene, &light);
+        if renderer.render(&camera_emitter, &mut scene, &light) {
+            break;
+        }
     }
 }
