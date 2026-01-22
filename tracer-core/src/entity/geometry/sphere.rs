@@ -1,5 +1,5 @@
 use crate::entity::actor::{Actor, ActorTrait, DirectionalActorTrait};
-use crate::entity::geometry::{ActorWithGeometry, RayType};
+use crate::entity::geometry::RayType;
 use crate::entity::geometry::{Geometry, ray::Ray};
 
 use glam::{Vec3, Vec4};
@@ -85,8 +85,6 @@ impl Geometry for Sphere {
         }
     }
 }
-
-impl ActorWithGeometry for Sphere {}
 
 // #####################################
 

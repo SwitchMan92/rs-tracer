@@ -3,7 +3,7 @@ use glam::{Vec3, Vec4};
 use crate::entity::actor::{ActorTrait, DirectionalActorTrait};
 use crate::entity::geometry::ray::Ray;
 use crate::entity::geometry::sphere::Sphere;
-use crate::entity::geometry::{ActorWithGeometry, Geometry, RayType};
+use crate::entity::geometry::{Geometry, RayType};
 
 /// Structure holding a given light's representation.
 pub struct Light {
@@ -49,5 +49,3 @@ impl Geometry for Light {
         self.geometry.intersect(ray, ray_type)
     }
 }
-
-impl ActorWithGeometry for Light {}

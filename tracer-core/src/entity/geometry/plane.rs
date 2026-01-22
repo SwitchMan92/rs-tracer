@@ -2,7 +2,7 @@ use glam::{Vec3, Vec4};
 
 use crate::entity::{
     actor::{ActorTrait, DirectionalActor, DirectionalActorTrait},
-    geometry::{ActorWithGeometry, Geometry, RayType, ray::Ray},
+    geometry::{Geometry, RayType, ray::Ray},
 };
 
 /// Structure representing a Planar surface.
@@ -70,8 +70,6 @@ impl Geometry for Plane {
         }
     }
 }
-
-impl ActorWithGeometry for Plane {}
 
 // #####################################
 

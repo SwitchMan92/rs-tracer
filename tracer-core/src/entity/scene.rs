@@ -3,13 +3,13 @@ use glam::Vec4;
 
 use crate::entity::{
     actor::{ActorTrait, DirectionalActorTrait},
-    geometry::{ActorWithGeometry, RayType, ray::Ray},
+    geometry::{Geometry, GeometryImpl, RayType, ray::Ray},
     rendering::light::Light,
 };
 
 /// Container structure representing the scene's composition.
-pub struct Scene<'a> {
-    pub renderables: Vec<&'a dyn ActorWithGeometry>,
+pub struct Scene {
+    pub renderables: Vec<GeometryImpl>,
     pub ambient: Vec4,
 }
 
@@ -17,7 +17,7 @@ pub trait Renderable {
     fn render(&self, ray: &Ray, light: &Light, ray_type: &RayType) -> Option<Vec4>;
 }
 
-impl Renderable for Scene<'_> {
+impl Renderable for Scene {
     //// Iterate through the scene's renderable objects, and calculates the ray emitter ray's final color.
     fn render(&self, ray: &Ray, light: &Light, ray_type: &RayType) -> Option<Vec4> {
         let mut result_color = Vec4::new(0., 0., 0., 0.);
@@ -65,7 +65,7 @@ impl Renderable for Scene<'_> {
     }
 }
 
-impl Scene<'_> {
+impl Scene {
     pub const fn new(ambient: &Vec4) -> Self {
         Self {
             renderables: Vec::new(),

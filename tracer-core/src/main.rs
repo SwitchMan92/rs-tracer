@@ -1,5 +1,6 @@
 use glam::{Vec3, Vec4};
 
+use crate::entity::geometry::GeometryImpl;
 use crate::entity::geometry::plane::Plane;
 use crate::entity::geometry::sphere::Sphere;
 use crate::entity::rendering::light::Light;
@@ -40,14 +41,14 @@ pub fn main() {
     );
 
     let sphere: Sphere = Sphere::new(&Vec3::new(0., 0., 0.), 50., Vec4::new(0., 255., 0., 1.));
-    scene.renderables.push(&sphere);
+    scene.renderables.push(GeometryImpl::Sphere(sphere));
 
     let plane: Plane = Plane::new(
         &Vec3::new(0., -100., 0.),
         &Vec3::new(0., 1., 1.),
         &Vec4::new(0., 0., 255., 1.),
     );
-    scene.renderables.push(&plane);
+    scene.renderables.push(GeometryImpl::Plane(plane));
 
     loop {
         if renderer.render(&camera_emitter, &mut scene, &light) {
