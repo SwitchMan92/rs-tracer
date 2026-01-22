@@ -8,3 +8,7 @@ glam = { workspace = true }
 rayon = { workspace = true }
 sdl2 = { workspace = true }
 tracer-core = { path = "../tracer-core" }
+
+[features]
+dhat-heap = []
+hyperfine = []
