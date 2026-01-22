@@ -1,6 +1,8 @@
 use core::f32;
 use glam::Vec4;
 
+use rayon::prelude::*;
+
 use crate::entity::{
     actor::{ActorTrait, DirectionalActorTrait},
     geometry::{Geometry, GeometryImpl, RayType, ray::Ray},
@@ -47,7 +49,7 @@ impl Renderable for Scene {
 
                 let see_light = f32::min(
                     self.renderables
-                        .iter()
+                        .par_iter()
                         .enumerate()
                         .filter(|x| x.0 != renderable_index)
                         .filter(|x| match x.1.intersect(&light_ray, &RayType::Light) {

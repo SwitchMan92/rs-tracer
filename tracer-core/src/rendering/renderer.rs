@@ -8,6 +8,7 @@ use crate::{
     },
     rendering::ray_emitter::RayEmitter,
 };
+use rayon::prelude::*;
 
 /// Structure in charge of managing the window and the window's render target.
 pub struct Renderer<'a> {
@@ -64,25 +65,39 @@ impl<'a> Renderer<'a> {
             let mut surface = self.window.surface(&event_pump).unwrap();
             surface.enable_RLE();
             surface.with_lock_mut(|buffer: &mut [u8]| {
-                ray_emitter
+                let temp_buffer: Vec<u8> = ray_emitter
                     .rays
-                    .iter()
-                    .map(|ray| scene.render(ray, light, &RayType::Camera))
-                    .enumerate()
-                    .for_each(|it| match it.1 {
-                        None => {
-                            buffer[it.0 * 4] = 0;
-                            buffer[it.0 * 4 + 1] = 0;
-                            buffer[it.0 * 4 + 2] = 0;
-                            buffer[it.0 * 4 + 3] = 1;
-                        }
-                        Some(result) => {
-                            buffer[it.0 * 4] = result.x as u8;
-                            buffer[it.0 * 4 + 1] = result.y as u8;
-                            buffer[it.0 * 4 + 2] = result.z as u8;
-                            buffer[it.0 * 4 + 3] = result.w as u8;
-                        }
-                    });
+                    .par_iter()
+                    .map(|ray| scene.render(&ray, light, &RayType::Camera))
+                    .fold(
+                        || Vec::<u8>::with_capacity(4),
+                        |mut a, b| {
+                            match b {
+                                None => {
+                                    a.push(0);
+                                    a.push(0);
+                                    a.push(0);
+                                    a.push(0);
+                                }
+                                Some(result) => {
+                                    a.push(result.x as u8);
+                                    a.push(result.y as u8);
+                                    a.push(result.z as u8);
+                                    a.push(result.w as u8);
+                                }
+                            }
+                            a
+                        },
+                    )
+                    .reduce(
+                        || Vec::<u8>::with_capacity(ray_emitter.rays.len() * 4),
+                        |mut a, b| {
+                            a.extend(&b);
+                            a
+                        },
+                    );
+
+                buffer.copy_from_slice(temp_buffer.as_slice());
                 self.apply_msaa(buffer);
             });
 
