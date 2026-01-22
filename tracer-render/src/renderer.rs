@@ -39,27 +39,28 @@ impl<'a> Renderer<'a> {
         }
     }
 
-    fn apply_msaa(&self, buffer: &mut [u8]) {
+    fn apply_msaa(&self, buffer: &mut [u8], strides: (i32, i32)) {
         let x_offset = self.w * 4;
         let slice_end = buffer.len() - x_offset - 4;
 
         let test: Vec<u8> = (x_offset + 4..slice_end)
             .into_par_iter()
             .map(|x| {
-                ((buffer[x - x_offset - 4] as u16
-                    + buffer[x - x_offset] as u16
-                    + buffer[x - x_offset + 4] as u16
-                    + buffer[x - 4] as u16
-                    + buffer[x] as u16
-                    + buffer[x + 4] as u16
-                    + buffer[x + x_offset - 4] as u16
-                    + buffer[x + x_offset] as u16
-                    + buffer[x + x_offset + 4] as u16)
-                    / 9) as u8
+                let mut accumulator: u16 = 0;
+
+                for row in -strides.0..=strides.0 {
+                    for col in -strides.1..=strides.1 {
+                        accumulator +=
+                            buffer[(x as i32 + (x_offset as i32 * row + col * 4)) as usize] as u16
+                    }
+                }
+
+                accumulator /= ((strides.0 * 2 + 1) * (strides.1 * 2 + 1)) as u16;
+                accumulator as u8
             })
             .collect();
 
-        buffer[x_offset + 4..slice_end].copy_from_slice(&test.as_slice());
+        buffer[x_offset + 4..slice_end].copy_from_slice(test.as_slice());
     }
 
     /// Draw each object on the window surface, from the furthest to the nearest.
@@ -89,7 +90,7 @@ impl<'a> Renderer<'a> {
                             buffer[it.0 * 4 + 3] = result.w as u8;
                         }
                     });
-                self.apply_msaa(buffer);
+                self.apply_msaa(buffer, (1, 1));
             });
 
             let _ = surface.finish();
