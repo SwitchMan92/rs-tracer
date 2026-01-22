@@ -51,6 +51,14 @@ pub fn main() {
     scene.renderables.push(GeometryImpl::Plane(plane));
 
     loop {
+        #[cfg(feature = "hyperfine")]
+        {
+            for _ in (0..100) {
+                renderer.render(&camera_emitter, &mut scene, &light);
+            }
+            break;
+        }
+
         if renderer.render(&camera_emitter, &mut scene, &light) {
             break;
         }

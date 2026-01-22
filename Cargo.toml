@@ -6,6 +6,7 @@ members = ["tracer-core"]
 dhat = "0.3.3"
 glam = "0.31.0"
 range2d = "0.2.0"
+rayon = "1.11.0"
 sdl2 = "0.38.0"
 
 [profile.dev]
@@ -15,4 +16,9 @@ lto = true
 codegen-units = 1
 panic = "abort"
 split-debuginfo = "off"
+
+[profile.release]
+lto = true
+codegen-units = 1
+panic = "abort"
 
