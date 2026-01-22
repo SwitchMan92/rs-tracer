@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["tracer-core"]
+members = ["tracer-render","tracer-core"]
 
 [workspace.dependencies]
 dhat = "0.3.3"

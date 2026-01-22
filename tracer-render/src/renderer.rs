@@ -1,7 +1,7 @@
-use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
 use rayon::prelude::*;
+use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
 
-use crate::{
+use tracer_core::{
     entity::{
         geometry::RayType,
         rendering::light::Light,
@@ -44,25 +44,22 @@ impl<'a> Renderer<'a> {
         let slice_end = buffer.len() - x_offset - 4;
 
         let test: Vec<u8> = (x_offset + 4..slice_end)
-        .into_par_iter()
-        .map(|x| {
-                (
-                    (
-                        buffer[x - x_offset - 4] as u16
-                        + buffer[x - x_offset] as u16
-                        + buffer[x - x_offset + 4] as u16
-                        + buffer[x - 4] as u16
-                        + buffer[x] as u16
-                        + buffer[x + 4] as u16
-                        + buffer[x + x_offset - 4] as u16
-                        + buffer[x + x_offset] as u16
-                        + buffer[x + x_offset + 4] as u16
-                    ) / 9
-                ) as u8
-        }).collect();
+            .into_par_iter()
+            .map(|x| {
+                ((buffer[x - x_offset - 4] as u16
+                    + buffer[x - x_offset] as u16
+                    + buffer[x - x_offset + 4] as u16
+                    + buffer[x - 4] as u16
+                    + buffer[x] as u16
+                    + buffer[x + 4] as u16
+                    + buffer[x + x_offset - 4] as u16
+                    + buffer[x + x_offset] as u16
+                    + buffer[x + x_offset + 4] as u16)
+                    / 9) as u8
+            })
+            .collect();
 
         buffer[x_offset + 4..slice_end].copy_from_slice(&test.as_slice());
-
     }
 
     /// Draw each object on the window surface, from the furthest to the nearest.
