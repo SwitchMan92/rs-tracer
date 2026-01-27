@@ -1,4 +1,4 @@
-use glam::{Vec3, Vec4};
+use glam::{Vec3A, Vec4};
 
 use crate::entity::{
     actor::{ActorTrait, DirectionalActorTrait},
@@ -11,7 +11,7 @@ pub trait MaterialTrait {
     fn calculate_illumination(
         &self,
         scene: &Scene,
-        surface_normal: &Vec3,
+        surface_normal: &Vec3A,
         ray: &Ray,
         light: &Light,
         light_ray: &Ray,
@@ -34,7 +34,7 @@ impl MaterialTrait for ColorMaterial {
     fn calculate_illumination(
         &self,
         _scene: &Scene,
-        _surface_normal: &Vec3,
+        _surface_normal: &Vec3A,
         _ray: &Ray,
         _light: &Light,
         _light_ray: &Ray,
@@ -65,7 +65,7 @@ impl MaterialTrait for DiffuseMaterial {
     fn calculate_illumination(
         &self,
         _scene: &Scene,
-        surface_normal: &Vec3,
+        surface_normal: &Vec3A,
         _ray: &Ray,
         _light: &Light,
         light_ray: &Ray,
@@ -100,7 +100,7 @@ impl MaterialTrait for SpecularMaterial {
     fn calculate_illumination(
         &self,
         _scene: &Scene,
-        surface_normal: &Vec3,
+        surface_normal: &Vec3A,
         _ray: &Ray,
         light: &Light,
         light_ray: &Ray,
@@ -160,7 +160,7 @@ impl MaterialTrait for ReflectiveMaterial {
     fn calculate_illumination(
         &self,
         scene: &Scene,
-        surface_normal: &Vec3,
+        surface_normal: &Vec3A,
         ray: &Ray,
         light: &Light,
         light_ray: &Ray,
