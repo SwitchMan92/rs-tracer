@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["tracer-render","tracer-core"]
+members = ["tracer-core"]
 
 [workspace.dependencies]
 dhat = "0.3.3"
@@ -12,7 +12,7 @@ sdl2 = "0.38.0"
 [profile.dev]
 debug = true
 strip = false
-lto = false
+lto = true
 codegen-units = 1
 panic = "abort"
 split-debuginfo = "off"

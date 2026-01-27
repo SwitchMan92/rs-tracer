@@ -1,14 +1,15 @@
 use glam::{Vec3, Vec4};
 
-use renderer::Renderer;
-use tracer_core::entity::geometry::GeometryImpl;
-use tracer_core::entity::geometry::plane::Plane;
-use tracer_core::entity::geometry::sphere::Sphere;
-use tracer_core::entity::rendering::light::Light;
-use tracer_core::entity::scene::Scene;
-use tracer_core::rendering::ray_emitter::RayEmitter;
+use crate::entity::geometry::GeometryImpl;
+use crate::entity::geometry::plane::Plane;
+use crate::entity::geometry::sphere::Sphere;
+use crate::entity::rendering::light::Light;
+use crate::entity::scene::Scene;
+use crate::rendering::ray_emitter::RayEmitter;
+use crate::rendering::renderer::Renderer;
 
-mod renderer;
+mod entity;
+mod rendering;
 
 const RESOLUTION: (u32, u32) = (1000, 1000);
 
