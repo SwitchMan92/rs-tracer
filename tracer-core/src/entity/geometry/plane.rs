@@ -1,4 +1,4 @@
-use glam::{Vec3, Vec4};
+use glam::{Vec3AA, Vec4};
 
 use crate::entity::{
     actor::{ActorTrait, DirectionalActor, DirectionalActorTrait},
@@ -19,7 +19,7 @@ impl std::ops::Deref for Plane {
 }
 
 impl Plane {
-    pub const fn new(position: &Vec3, direction: &Vec3, color: &Vec4) -> Self {
+    pub const fn new(position: &Vec3AA, direction: &Vec3AA, color: &Vec4) -> Self {
         Self {
             dir_actor: DirectionalActor::new(position, direction),
             color: *color,
@@ -28,19 +28,19 @@ impl Plane {
 }
 
 impl ActorTrait for Plane {
-    fn get_position(&self) -> Vec3 {
+    fn get_position(&self) -> Vec3AA {
         self.dir_actor.get_position()
     }
 }
 
 impl Geometry for Plane {
     //// Return the plane's normal vector.
-    fn get_surface_normal(&self, _point: &Vec3) -> Vec3 {
+    fn get_surface_normal(&self, _point: &Vec3AA) -> Vec3AA {
         self.get_direction()
     }
 
     //// check if the ray intersects with the current plane structure and return the ray's color post-interaction.
-    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3, Vec4)> {
+    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3AA, Vec4)> {
         let n_dot_l = ray.get_direction().dot(self.get_direction());
         match n_dot_l {
             x if x < 0.001 => None,
@@ -75,7 +75,7 @@ impl Geometry for Plane {
 
 #[cfg(test)]
 mod tests {
-    use glam::{Vec3, Vec4};
+    use glam::{Vec3AA, Vec4};
 
     use crate::entity::{
         actor::DirectionalActor,
@@ -86,10 +86,10 @@ mod tests {
     fn test_success_intersect() {
         const COLOR: Vec4 = Vec4::new(255., 255., 255., 0.);
 
-        let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(1., -1., 0.));
+        let ray = Ray::new(&Vec3AA::new(0., 2., 0.), &Vec3AA::new(1., -1., 0.));
 
         let plane = Plane {
-            dir_actor: DirectionalActor::new(&Vec3::new(2., 1., 0.), &Vec3::new(2., 1., 0.)),
+            dir_actor: DirectionalActor::new(&Vec3AA::new(2., 1., 0.), &Vec3AA::new(2., 1., 0.)),
             color: COLOR,
         };
 
