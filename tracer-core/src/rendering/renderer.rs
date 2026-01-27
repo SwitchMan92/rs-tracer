@@ -1,8 +1,9 @@
 use glam::Vec4;
 use rayon::prelude::*;
+use rayon::prelude::*;
 use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
 
-use tracer_core::{
+use crate::{
     entity::{
         geometry::RayType,
         rendering::light::Light,
@@ -40,6 +41,29 @@ impl<'a> Renderer<'a> {
         }
     }
 
+    fn apply_msaa(&self, buffer: &mut [u8]) {
+        let x_offset = self.w * 4;
+        let slice_end = buffer.len() - x_offset - 4;
+
+        let test: Vec<u8> = (x_offset + 4..slice_end)
+            .into_par_iter()
+            .map(|x| {
+                ((buffer[x - x_offset - 4] as u16
+                    + buffer[x - x_offset] as u16
+                    + buffer[x - x_offset + 4] as u16
+                    + buffer[x - 4] as u16
+                    + buffer[x] as u16
+                    + buffer[x + 4] as u16
+                    + buffer[x + x_offset - 4] as u16
+                    + buffer[x + x_offset] as u16
+                    + buffer[x + x_offset + 4] as u16)
+                    / 9) as u8
+            })
+            .collect();
+
+        buffer[x_offset + 4..slice_end].copy_from_slice(&test.as_slice());
+    }
+
     /// Draw each object on the window surface, from the furthest to the nearest.
     pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, light: &Light) -> bool {
         let mut event_pump = self.sdl_context.event_pump().unwrap();
@@ -57,18 +81,19 @@ impl<'a> Renderer<'a> {
                     .enumerate()
                     .for_each(|it| match it.1 {
                         None => {
-                            buffer[it.0 * 4..(it.0 * 4) + 4].copy_from_slice(&[0, 0, 0, 1]);
+                            buffer[it.0 * 4] = 0;
+                            buffer[it.0 * 4 + 1] = 0;
+                            buffer[it.0 * 4 + 2] = 0;
+                            buffer[it.0 * 4 + 3] = 1;
                         }
                         Some(result) => {
-                            buffer[it.0 * 4..(it.0 * 4) + 4].copy_from_slice(&[
-                                result.x as u8,
-                                result.y as u8,
-                                result.z as u8,
-                                result.w as u8,
-                            ]);
+                            buffer[it.0 * 4] = result.x as u8;
+                            buffer[it.0 * 4 + 1] = result.y as u8;
+                            buffer[it.0 * 4 + 2] = result.z as u8;
+                            buffer[it.0 * 4 + 3] = result.w as u8;
                         }
                     });
-                image_filter::apply_msaa(self.w as isize, buffer, (1, 1));
+                image_filter::apply_msaa_2d(self.w as isize, buffer, (1, 1));
             });
 
             let _ = surface.finish();
