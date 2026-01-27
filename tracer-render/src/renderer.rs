@@ -1,3 +1,5 @@
+use glam::Vec4;
+use rayon::prelude::*;
 use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
 
 use tracer_core::{
@@ -48,23 +50,25 @@ impl<'a> Renderer<'a> {
             surface.with_lock_mut(|buffer: &mut [u8]| {
                 ray_emitter
                     .rays
+                    .par_iter()
+                    .map(|ray| scene.render(ray, light, &RayType::Camera, &0))
+                    .collect::<Vec<Option<Vec4>>>()
                     .iter()
-                    .map(|ray| scene.render(ray, light, &RayType::Camera))
                     .enumerate()
                     .for_each(|it| match it.1 {
                         None => {
-                            buffer[it.0*4..(it.0*4)+4].copy_from_slice(&[0, 0, 0, 1]);
+                            buffer[it.0 * 4..(it.0 * 4) + 4].copy_from_slice(&[0, 0, 0, 1]);
                         }
                         Some(result) => {
-                            buffer[it.0*4..(it.0*4)+4].copy_from_slice(&[
-                                result.x as u8, 
-                                result.y as u8, 
+                            buffer[it.0 * 4..(it.0 * 4) + 4].copy_from_slice(&[
+                                result.x as u8,
+                                result.y as u8,
                                 result.z as u8,
-                                result.w as u8
-                                ]);
+                                result.w as u8,
+                            ]);
                         }
                     });
-                image_filter::apply_msaa_3x3_serial(self.w, buffer);
+                image_filter::apply_msaa_2d(self.w as isize, buffer, (1, 1));
             });
 
             let _ = surface.finish();

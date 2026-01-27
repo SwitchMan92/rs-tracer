@@ -52,7 +52,7 @@ pub fn main() {
     loop {
         #[cfg(feature = "hyperfine")]
         {
-            for _ in (0..100) {
+            for _ in 0..100 {
                 renderer.render(&camera_emitter, &mut scene, &light);
             }
             break;
