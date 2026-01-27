@@ -68,7 +68,7 @@ impl<'a> Renderer<'a> {
                             ]);
                         }
                     });
-                image_filter::apply_msaa_2d(self.w as isize, buffer, (1, 1));
+                image_filter::apply_msaa(self.w as isize, buffer, (1, 1));
             });
 
             let _ = surface.finish();
