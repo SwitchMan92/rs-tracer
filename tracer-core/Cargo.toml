@@ -10,6 +10,3 @@ range2d = { workspace = true }
 rayon= { workspace = true }
 sdl2 = { workspace = true }
 
-[features]
-dhat-heap = []
-hyperfine = []
