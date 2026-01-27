@@ -84,8 +84,4 @@ impl Scene {
             ambient: *ambient,
         }
     }
-
-    pub fn get_renderables(&self) -> &Vec<GeometryImpl> {
-        &self.renderables
-    }
 }
