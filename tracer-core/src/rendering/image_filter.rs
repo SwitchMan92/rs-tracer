@@ -1,5 +1,7 @@
 use rayon::prelude::*;
 
+// ########################################
+
 pub fn apply_msaa(screen_width: usize, buffer: &mut [u8], strides: (i32, i32)) {
     let x_offset = screen_width * 4;
     let slice_end = buffer.len() - x_offset - 4;
@@ -22,4 +24,57 @@ pub fn apply_msaa(screen_width: usize, buffer: &mut [u8], strides: (i32, i32)) {
         .collect();
 
     buffer[x_offset + 4..slice_end].copy_from_slice(test.as_slice());
+}
+
+// ########################################
+
+pub fn apply_msaa_3x3(screen_width: usize, buffer: &mut [u8]) {
+    let x_offset = screen_width * 4;
+    let slice_end = buffer.len() - x_offset - 4;
+
+    let test: Vec<u8> = (x_offset + 4..slice_end)
+    .into_par_iter()
+    .map(|x| {
+            (
+                (
+                    buffer[x - x_offset - 4] as u16
+                    + buffer[x - x_offset] as u16
+                    + buffer[x - x_offset + 4] as u16
+                    + buffer[x - 4] as u16
+                    + buffer[x] as u16
+                    + buffer[x + 4] as u16
+                    + buffer[x + x_offset - 4] as u16
+                    + buffer[x + x_offset] as u16
+                    + buffer[x + x_offset + 4] as u16
+                ) / 9
+            ) as u8
+    }).collect();
+
+    buffer[x_offset + 4..slice_end].copy_from_slice(&test.as_slice());
+
+}
+
+// ########################################
+
+pub fn apply_msaa_3x3_serial(screen_width: usize, buffer: &mut [u8]) {
+    let x_offset = screen_width * 4;
+    let slice_end = buffer.len() - x_offset - 4;
+
+    (x_offset + 4..slice_end)
+    .into_iter()
+    .for_each(|x| {
+            buffer[x] = (
+                (
+                    buffer[x - x_offset - 4] as u16
+                    + buffer[x - x_offset] as u16
+                    + buffer[x - x_offset + 4] as u16
+                    + buffer[x - 4] as u16
+                    + buffer[x] as u16
+                    + buffer[x + 4] as u16
+                    + buffer[x + x_offset - 4] as u16
+                    + buffer[x + x_offset] as u16
+                    + buffer[x + x_offset + 4] as u16
+                ) / 9
+            ) as u8
+    });
 }

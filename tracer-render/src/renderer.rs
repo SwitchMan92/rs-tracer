@@ -53,19 +53,18 @@ impl<'a> Renderer<'a> {
                     .enumerate()
                     .for_each(|it| match it.1 {
                         None => {
-                            buffer[it.0 * 4] = 0;
-                            buffer[it.0 * 4 + 1] = 0;
-                            buffer[it.0 * 4 + 2] = 0;
-                            buffer[it.0 * 4 + 3] = 1;
+                            buffer[it.0*4..(it.0*4)+4].copy_from_slice(&[0, 0, 0, 1]);
                         }
                         Some(result) => {
-                            buffer[it.0 * 4] = result.x as u8;
-                            buffer[it.0 * 4 + 1] = result.y as u8;
-                            buffer[it.0 * 4 + 2] = result.z as u8;
-                            buffer[it.0 * 4 + 3] = result.w as u8;
+                            buffer[it.0*4..(it.0*4)+4].copy_from_slice(&[
+                                result.x as u8, 
+                                result.y as u8, 
+                                result.z as u8,
+                                result.w as u8
+                                ]);
                         }
                     });
-                image_filter::apply_msaa(self.w, buffer, (1, 1));
+                image_filter::apply_msaa_3x3_serial(self.w, buffer);
             });
 
             let _ = surface.finish();
