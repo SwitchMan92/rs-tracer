@@ -14,12 +14,24 @@ pub struct Scene {
 }
 
 pub trait Renderable {
-    fn render(&self, ray: &Ray, light: &Light, ray_type: &RayType) -> Option<Vec4>;
+    fn render(
+        &self,
+        ray: &Ray,
+        light: &Light,
+        ray_type: &RayType,
+        current_depth: &usize,
+    ) -> Option<Vec4>;
 }
 
 impl Renderable for Scene {
     //// Iterate through the scene's renderable objects, and calculates the ray emitter ray's final color.
-    fn render(&self, ray: &Ray, light: &Light, ray_type: &RayType) -> Option<Vec4> {
+    fn render(
+        &self,
+        ray: &Ray,
+        light: &Light,
+        ray_type: &RayType,
+        _current_depth: &usize,
+    ) -> Option<Vec4> {
         let mut result_color = Vec4::new(0., 0., 0., 0.);
         let mut t_min = f32::NAN;
         let mut renderable_index: usize = 0;
