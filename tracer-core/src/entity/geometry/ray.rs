@@ -1,4 +1,4 @@
-use glam::Vec3A;
+use glam::Vec3;
 use std::fmt;
 
 use crate::entity::actor::{ActorTrait, DirectionalActor, DirectionalActorTrait};
@@ -17,7 +17,7 @@ impl std::ops::Deref for Ray {
 }
 
 impl Ray {
-    pub const fn new(position: &Vec3A, direction: &Vec3A) -> Self {
+    pub const fn new(position: &Vec3, direction: &Vec3) -> Self {
         Self {
             dir_actor: DirectionalActor::new(position, direction),
         }

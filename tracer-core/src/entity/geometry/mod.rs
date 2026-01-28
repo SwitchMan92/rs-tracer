@@ -2,7 +2,7 @@ pub mod plane;
 pub mod ray;
 pub mod sphere;
 
-use glam::{Vec3A, Vec4};
+use glam::{Vec3, Vec4};
 
 use crate::entity::actor::ActorTrait;
 use crate::entity::geometry::plane::Plane;
@@ -18,8 +18,8 @@ pub enum RayType {
 /// Base traits used to allow handling of graphical interactions by a given scene.
 pub trait Geometry {
     //// Check collision with a given ray from the ray emitter, return the ray's color post-interaction with the geometry object.
-    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3A, Vec4)>;
-    fn get_surface_normal(&self, point: &Vec3A) -> Vec3A;
+    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3, Vec4)>;
+    fn get_surface_normal(&self, point: &Vec3) -> Vec3;
 }
 
 // #####################################
@@ -31,7 +31,7 @@ pub enum GeometryImpl {
 }
 
 impl ActorTrait for GeometryImpl {
-    fn get_position(&self) -> Vec3A {
+    fn get_position(&self) -> Vec3 {
         match self {
             GeometryImpl::Plane(i) => i.get_position(),
             GeometryImpl::Sphere(i) => i.get_position(),
@@ -41,7 +41,7 @@ impl ActorTrait for GeometryImpl {
 }
 
 impl Geometry for GeometryImpl {
-    fn get_surface_normal(&self, point: &Vec3A) -> Vec3A {
+    fn get_surface_normal(&self, point: &Vec3) -> Vec3 {
         match self {
             GeometryImpl::Plane(i) => i.get_surface_normal(point),
             GeometryImpl::Sphere(i) => i.get_surface_normal(point),
@@ -49,7 +49,7 @@ impl Geometry for GeometryImpl {
         }
     }
 
-    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3A, Vec4)> {
+    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3, Vec4)> {
         match self {
             GeometryImpl::Plane(i) => i.intersect(ray, ray_type),
             GeometryImpl::Sphere(i) => i.intersect(ray, ray_type),

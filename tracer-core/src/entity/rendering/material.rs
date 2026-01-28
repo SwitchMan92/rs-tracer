@@ -1,4 +1,4 @@
-use glam::{Vec3A, Vec4};
+use glam::{Vec3, Vec4};
 
 use crate::entity::{
     actor::{ActorTrait, DirectionalActorTrait},
@@ -11,7 +11,7 @@ pub trait MaterialTrait {
     fn calculate_illumination(
         &self,
         scene: &Scene,
-        surface_normal: &Vec3A,
+        surface_normal: &Vec3,
         ray: &Ray,
         light: &Light,
         light_ray: &Ray,
@@ -34,7 +34,7 @@ impl MaterialTrait for ColorMaterial {
     fn calculate_illumination(
         &self,
         _scene: &Scene,
-        _surface_normal: &Vec3A,
+        _surface_normal: &Vec3,
         _ray: &Ray,
         _light: &Light,
         _light_ray: &Ray,
@@ -65,7 +65,7 @@ impl MaterialTrait for DiffuseMaterial {
     fn calculate_illumination(
         &self,
         _scene: &Scene,
-        surface_normal: &Vec3A,
+        surface_normal: &Vec3,
         _ray: &Ray,
         _light: &Light,
         light_ray: &Ray,
@@ -100,7 +100,7 @@ impl MaterialTrait for SpecularMaterial {
     fn calculate_illumination(
         &self,
         _scene: &Scene,
-        surface_normal: &Vec3A,
+        surface_normal: &Vec3,
         _ray: &Ray,
         light: &Light,
         light_ray: &Ray,
@@ -160,7 +160,7 @@ impl MaterialTrait for ReflectiveMaterial {
     fn calculate_illumination(
         &self,
         scene: &Scene,
-        surface_normal: &Vec3A,
+        surface_normal: &Vec3,
         ray: &Ray,
         light: &Light,
         light_ray: &Ray,
@@ -190,3 +190,97 @@ impl MaterialTrait for ReflectiveMaterial {
 }
 
 // ########################################
+
+pub enum MaterialType {
+    Color(ColorMaterial),
+    Diffuse(DiffuseMaterial),
+    Specular(SpecularMaterial),
+    Reflective(ReflectiveMaterial),
+}
+
+impl MaterialTrait for MaterialType {
+    fn calculate_illumination(
+        &self,
+        scene: &Scene,
+        surface_normal: &Vec3,
+        ray: &Ray,
+        light: &Light,
+        light_ray: &Ray,
+        start_color: &Vec4,
+        current_depth: &usize,
+    ) -> Vec4 {
+        match self {
+            MaterialType::Color(i) => i.calculate_illumination(
+                scene,
+                surface_normal,
+                ray,
+                light,
+                light_ray,
+                start_color,
+                current_depth,
+            ),
+            MaterialType::Diffuse(i) => i.calculate_illumination(
+                scene,
+                surface_normal,
+                ray,
+                light,
+                light_ray,
+                start_color,
+                current_depth,
+            ),
+            MaterialType::Specular(i) => i.calculate_illumination(
+                scene,
+                surface_normal,
+                ray,
+                light,
+                light_ray,
+                start_color,
+                current_depth,
+            ),
+            MaterialType::Reflective(i) => i.calculate_illumination(
+                scene,
+                surface_normal,
+                ray,
+                light,
+                light_ray,
+                start_color,
+                current_depth,
+            ),
+        }
+    }
+}
+
+// ########################################
+
+pub struct MaterialMixer {
+    materials: Vec<MaterialType>,
+}
+
+impl MaterialTrait for MaterialMixer {
+    fn calculate_illumination(
+        &self,
+        scene: &Scene,
+        surface_normal: &Vec3,
+        ray: &Ray,
+        light: &Light,
+        light_ray: &Ray,
+        start_color: &Vec4,
+        current_depth: &usize,
+    ) -> Vec4 {
+        self.materials
+            .iter()
+            .map(|x| {
+                x.calculate_illumination(
+                    scene,
+                    surface_normal,
+                    ray,
+                    light,
+                    light_ray,
+                    start_color,
+                    current_depth,
+                )
+            })
+            .fold(Vec4::ZERO, |acc, ray_color| acc + ray_color)
+            / self.materials.len() as f32
+    }
+}
