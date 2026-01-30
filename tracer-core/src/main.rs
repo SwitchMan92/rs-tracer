@@ -4,6 +4,7 @@ use tracer_core::entity::geometry::GeometryImpl;
 use tracer_core::entity::geometry::plane::Plane;
 use tracer_core::entity::geometry::sphere::Sphere;
 use tracer_core::entity::rendering::light::Light;
+use tracer_core::entity::rendering::material::{DiffuseMaterial, MaterialType};
 use tracer_core::entity::scene::Scene;
 use tracer_core::rendering::ray_emitter::RayEmitter;
 use tracer_core::rendering::renderer::Renderer;
@@ -46,7 +47,7 @@ pub fn main() {
     let plane: Plane = Plane::new(
         &Vec3A::new(0., -100., 0.),
         &Vec3A::new(0., 1., 1.),
-        &Vec4::new(0., 0., 255., 1.),
+        &MaterialType::Diffuse(DiffuseMaterial::new(1.)),
     );
     scene.renderables.push(GeometryImpl::Plane(plane));
 

@@ -1,9 +1,9 @@
-use glam::{Vec3A, Vec4};
+use glam::Vec3A;
 
 use crate::entity::{
     actor::{ActorTrait, DirectionalActor, DirectionalActorTrait},
     geometry::{Geometry, RayType, ray::Ray},
-    rendering::material::{ColorMaterial, MaterialType},
+    rendering::material::MaterialType,
 };
 
 /// Structure representing a Planar surface.
@@ -13,10 +13,10 @@ pub struct Plane {
 }
 
 impl Plane {
-    pub fn new(position: &Vec3A, direction: &Vec3A, color: &Vec4) -> Self {
+    pub fn new(position: &Vec3A, direction: &Vec3A, material: &MaterialType) -> Self {
         Self {
             dir_actor: DirectionalActor::new(position, direction),
-            material: MaterialType::Color(ColorMaterial::new(&color)),
+            material: material.clone(),
         }
     }
 }

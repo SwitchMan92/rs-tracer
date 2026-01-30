@@ -22,6 +22,7 @@ pub trait MaterialTrait {
 
 // ########################################
 
+#[derive(Clone)]
 pub struct ColorMaterial {
     color: Vec4,
 }
@@ -67,6 +68,7 @@ impl ColorMaterial {
 
 // ########################################
 
+#[derive(Clone)]
 pub struct DiffuseMaterial {
     diffuse: f32,
 }
@@ -104,8 +106,15 @@ impl Default for DiffuseMaterial {
     }
 }
 
+impl DiffuseMaterial {
+    pub fn new(diffuse: f32) -> Self {
+        Self { diffuse: diffuse }
+    }
+}
+
 // ########################################
 
+#[derive(Clone)]
 pub struct SpecularMaterial {
     specular_reflection_coef: f32,
     shininess: f32,
@@ -166,6 +175,7 @@ impl Default for SpecularMaterial {
 
 // ########################################
 
+#[derive(Clone)]
 pub struct ReflectiveMaterial {
     reflect_coef: f32,
     max_depth: usize,
@@ -229,6 +239,7 @@ impl Default for ReflectiveMaterial {
 
 // ########################################
 
+#[derive(Clone)]
 pub struct MaterialMixer {
     materials: Vec<MaterialType>,
 }
@@ -271,6 +282,8 @@ impl Default for MaterialMixer {
 }
 
 // ########################################
+
+#[derive(Clone)]
 pub enum MaterialType {
     Color(ColorMaterial),
     Diffuse(DiffuseMaterial),
