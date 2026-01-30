@@ -1,29 +1,23 @@
 use crate::entity::actor::{Actor, ActorTrait, DirectionalActorTrait};
 use crate::entity::geometry::RayType;
 use crate::entity::geometry::{Geometry, ray::Ray};
+use crate::entity::rendering::material::{ColorMaterial, MaterialType};
 
 use glam::{Vec3A, Vec4};
 
 /// Structure used to represent a spherical renderable.
 pub struct Sphere {
-    pub actor: Actor,
-    pub radius: f32,
-    pub color: Vec4,
-}
-
-impl std::ops::Deref for Sphere {
-    type Target = Actor;
-    fn deref(&self) -> &Self::Target {
-        &self.actor
-    }
+    actor: Actor,
+    material: MaterialType,
+    radius: f32,
 }
 
 impl Sphere {
-    pub const fn new(position: &Vec3A, radius: f32, color: Vec4) -> Self {
+    pub fn new(position: &Vec3A, radius: f32, color: Vec4) -> Self {
         Self {
             actor: Actor::new(position),
+            material: MaterialType::Color(ColorMaterial::new(&color)),
             radius,
-            color,
         }
     }
 }
@@ -40,10 +34,14 @@ impl Geometry for Sphere {
         (point - self.get_position()) / self.radius
     }
 
+    fn get_material(&self) -> &MaterialType {
+        &self.material
+    }
+
     /// Check line-circle plain intersection and return the ray color post-interaction.
-    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3A, Vec4)> {
+    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3A)> {
         let d = ray.get_direction();
-        let f = ray.get_position() - self.position;
+        let f = ray.get_position() - self.actor.get_position();
 
         let a = d.dot(d);
         let b = 2. * f.dot(d);
@@ -80,7 +78,7 @@ impl Geometry for Sphere {
                     }
                 };
 
-                t.map(|t| (t, ray.get_position() + t * ray.get_direction(), self.color))
+                t.map(|t| (t, ray.get_position() + t * ray.get_direction()))
             }
         }
     }
@@ -95,6 +93,7 @@ mod tests {
     use crate::entity::{
         actor::Actor,
         geometry::{Geometry, RayType, ray::Ray, sphere::Sphere},
+        rendering::material::{ColorMaterial, MaterialType},
     };
 
     #[test]
@@ -111,7 +110,7 @@ mod tests {
 
         let sphere = Sphere {
             actor: Actor::new(&Vec3A::new(-2., 1., 0.)),
-            color: COLOR,
+            material: MaterialType::Color(ColorMaterial::default()),
             radius: 1.,
         };
 

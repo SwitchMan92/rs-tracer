@@ -1,10 +1,10 @@
 use core::f32;
-use glam::Vec4;
+use glam::{Vec3A, Vec4};
 
 use crate::entity::{
-    actor::{ActorTrait, DirectionalActorTrait},
+    actor::ActorTrait,
     geometry::{Geometry, GeometryImpl, RayType, ray::Ray},
-    rendering::light::Light,
+    rendering::{light::Light, material::MaterialTrait},
 };
 
 /// Container structure representing the scene's composition.
@@ -30,11 +30,11 @@ impl Renderable for Scene {
         ray: &Ray,
         light: &Light,
         ray_type: &RayType,
-        _current_depth: &usize,
+        current_depth: &usize,
     ) -> Option<Vec4> {
-        let mut result_color = Vec4::new(0., 0., 0., 0.);
         let mut t_min = f32::NAN;
         let mut renderable_index: usize = 0;
+        let mut intersection_point = Vec3A::NAN;
 
         self.renderables.iter().enumerate().for_each(|x| {
             if let Some(hit) = x.1.intersect(ray, ray_type)
@@ -42,16 +42,13 @@ impl Renderable for Scene {
             {
                 t_min = hit.0;
                 renderable_index = x.0;
-                result_color = hit.2;
+                intersection_point = hit.1;
             }
         });
 
         match t_min.is_nan() {
             true => Some(self.ambient),
             false => {
-                let intersection_point = ray.get_direction() * t_min + ray.get_position();
-                let normal =
-                    self.renderables[renderable_index].get_surface_normal(&intersection_point);
                 let light_ray = Ray::new(
                     &intersection_point,
                     &(light.get_position() - intersection_point),
@@ -69,9 +66,25 @@ impl Renderable for Scene {
                         .count() as f32,
                     1.,
                 );
-                let dot = light_ray.get_direction().dot(normal);
-                let diffuse = result_color * f32::max(0., dot);
-                Some(diffuse * self.ambient * see_light)
+
+                let renderable = &self.renderables[renderable_index];
+
+                Some(
+                    see_light
+                        * renderable.get_material().calculate_illumination(
+                            self,
+                            &renderable.get_surface_normal(&intersection_point),
+                            &ray,
+                            &light,
+                            &light_ray,
+                            &self.ambient,
+                            current_depth,
+                        ),
+                )
+
+                // let dot = light_ray.get_direction().dot(normal);
+                // let diffuse = result_color * f32::max(0., dot);
+                // Some(diffuse * self.ambient * see_light)
             }
         }
     }

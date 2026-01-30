@@ -19,7 +19,7 @@ impl std::ops::Deref for Light {
 }
 
 impl Light {
-    pub const fn new(position: &Vec3A, direction: &Vec3A, radius: f32, color: Vec4) -> Self {
+    pub fn new(position: &Vec3A, direction: &Vec3A, radius: f32, color: Vec4) -> Self {
         Self {
             geometry: Sphere::new(position, radius, color),
             direction: *direction,
@@ -29,7 +29,7 @@ impl Light {
 
 impl ActorTrait for Light {
     fn get_position(&self) -> Vec3A {
-        self.actor.get_position()
+        self.geometry.get_position()
     }
 }
 
@@ -44,8 +44,12 @@ impl Geometry for Light {
         self.geometry.get_surface_normal(point)
     }
 
+    fn get_material(&self) -> &super::material::MaterialType {
+        self.geometry.get_material()
+    }
+
     /// Render the light object as a sphere, mostly for scene's debugging purpose.
-    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3A, Vec4)> {
+    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3A)> {
         self.geometry.intersect(ray, ray_type)
     }
 }

@@ -1,6 +1,5 @@
 use glam::Vec4;
 use rayon::prelude::*;
-use rayon::prelude::*;
 use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
 
 use crate::{
