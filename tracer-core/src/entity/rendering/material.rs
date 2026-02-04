@@ -1,4 +1,5 @@
-use glam::{Vec3A, Vec4};
+use glam::{FloatExt, Vec3A, Vec4};
+use sdl2::surface;
 
 use crate::entity::{
     actor::{ActorTrait, DirectionalActorTrait},
@@ -28,10 +29,6 @@ pub struct ColorMaterial {
 }
 
 impl ColorMaterial {
-    fn get_color(&self) -> Vec4 {
-        self.color
-    }
-
     pub fn new(color: Vec4) -> Self {
         Self { color: color }
     }
@@ -60,10 +57,6 @@ pub struct DiffuseMaterial {
 }
 
 impl DiffuseMaterial {
-    fn get_diffuse_coef(&self) -> f32 {
-        self.diffuse
-    }
-
     pub fn new(diffuse: f32) -> Self {
         Self { diffuse: diffuse }
     }
@@ -95,13 +88,6 @@ pub struct SpecularMaterial {
 }
 
 impl SpecularMaterial {
-    fn get_specular_coef(&self) -> f32 {
-        self.specular_reflection_coef
-    }
-    fn get_shininess_coef(&self) -> f32 {
-        self.shininess
-    }
-
     pub fn new(specular_coef: f32, shininess: f32) -> Self {
         Self {
             specular_reflection_coef: specular_coef,
@@ -120,28 +106,39 @@ impl MaterialTrait for SpecularMaterial {
         &self,
         _scene: &Scene,
         surface_normal: &Vec3A,
-        _ray: &Ray,
-        light: &Light,
+        ray: &Ray,
+        _light: &Light,
         light_ray: &Ray,
         start_color: &Vec4,
         _current_depth: &usize,
     ) -> Vec4 {
-        let income_vector = light_ray.get_position() - light.get_position();
-        let income_vector_n = income_vector.normalize();
+        // let income_vector = light_ray.get_position() - light.get_position();
+        // let income_vector_n = income_vector.normalize();
 
-        let my_dot = income_vector_n.dot(*surface_normal);
-        let my_len = 2. * my_dot;
+        // let my_dot = income_vector_n.dot(*surface_normal);
+        // let my_len = 2. * my_dot;
 
-        let temp_normal = surface_normal * my_len;
-        let reflect_vector = temp_normal + income_vector_n;
-        let reflect_vector_n = reflect_vector.normalize();
+        // let temp_normal = surface_normal * my_len;
+        // let reflect_vector = temp_normal + income_vector_n;
+        // let reflect_vector_n = reflect_vector.normalize();
 
-        let mut my_spec = f32::max(reflect_vector_n.dot(income_vector_n), 0.);
-        my_spec = my_spec.powf(5.);
+        // let mut my_spec = f32::max(reflect_vector_n.dot(income_vector_n), 0.);
+        // my_spec = my_spec.powf(5.);
 
-        let specular_color = Vec4::ONE * my_spec;
-        (start_color + specular_color * self.specular_reflection_coef)
-            .clamp(Vec4::ZERO, Vec4::new(255., 255., 255., 255.))
+        // let specular_color = Vec4::ONE * my_spec;
+        // (start_color + specular_color * self.specular_reflection_coef)
+        //     .clamp(Vec4::ZERO, Vec4::new(255., 255., 255., 255.))
+
+        let distance = light_ray.get_direction().length();
+        let light_dir = &light_ray.get_direction() / distance;
+        
+        let half_vector = (light_dir + ray.get_direction()).normalize();
+
+        let ndoth = surface_normal.dot(half_vector);
+        let specular_intensity = ndoth.saturate().powf(self.shininess);
+
+        start_color + specular_intensity * Vec4::ONE * self.specular_reflection_coef
+
     }
 }
 
@@ -153,17 +150,12 @@ pub struct ReflectiveMaterial {
     max_depth: usize,
 }
 
-pub trait ReflectiveMaterialTrait {
-    fn get_reflection_coef(&self) -> f32;
-    fn get_max_depth(&self) -> usize;
-}
-
-impl ReflectiveMaterialTrait for ReflectiveMaterial {
-    fn get_reflection_coef(&self) -> f32 {
-        self.reflect_coef
-    }
-    fn get_max_depth(&self) -> usize {
-        self.max_depth
+impl ReflectiveMaterial {
+    pub fn new(reflect_coef: f32, max_depth: usize) -> Self {
+        Self {
+            reflect_coef: reflect_coef,
+            max_depth: max_depth,
+        }
     }
 }
 
