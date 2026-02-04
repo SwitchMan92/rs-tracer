@@ -1,5 +1,5 @@
 use core::f32;
-use glam::Vec4;
+use glam::{Vec3A, Vec4};
 
 use crate::entity::{
     actor::{ActorTrait, DirectionalActorTrait},
@@ -27,10 +27,11 @@ impl Renderable for Scene {
         ray: &Ray,
         light: &Light,
         ray_type: &RayType,
-        _current_depth: &usize,
+        current_depth: &usize,
     ) -> Option<Vec4> {
         let mut t_min = f32::NAN;
         let mut renderable_index: usize = 0;
+        let mut intersection_point = Vec3A::NAN;
 
         self.renderables.iter().enumerate().for_each(|x| {
             if let Some(hit) = x.1.intersect(ray, ray_type)

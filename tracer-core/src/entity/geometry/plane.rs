@@ -51,8 +51,9 @@ impl Geometry for Plane {
         match n_dot_l {
             x if x < 0.001 => None,
             _ => {
-                let t =
-                    (self.get_position() - ray.get_position()).dot(self.get_direction()) / n_dot_l;
+                let t = (self.get_position() - ray.get_position())
+                    .dot(self.dir_actor.get_direction())
+                    / n_dot_l;
 
                 match ray_type {
                     RayType::Camera => match t {
