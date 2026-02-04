@@ -67,15 +67,16 @@ impl Renderable for Scene {
                 match see_light {
                     0. => None,
                     x => Some(
-                        renderable.get_material().calculate_illumination(
-                            &self,
-                            &renderable.get_surface_normal(&intersection_point),
-                            &ray,
-                            &light,
-                            &light_ray,
-                            &self.ambient,
-                            &0,
-                        ) * x,
+                        self.ambient
+                            + renderable.get_material().calculate_illumination(
+                                self,
+                                &renderable.get_surface_normal(&intersection_point),
+                                ray,
+                                light,
+                                &light_ray,
+                                &Vec4::ZERO,
+                                &0,
+                            ) * x,
                     ),
                 }
             }

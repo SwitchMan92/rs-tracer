@@ -35,23 +35,23 @@ pub fn main() {
 
     let mut scene: Scene = Scene::new(&Vec4::new(0., 0., 0., 1.));
 
-    let mut material_mixer = MaterialMixer::new();
-    material_mixer
+    let mut material_mixer_sphere = MaterialMixer::default();
+    material_mixer_sphere
         .materials
         .push(MaterialType::Color(ColorMaterial::new(Vec4::new(
             0., 1., 0., 1.,
         ))));
-    material_mixer
+    material_mixer_sphere
         .materials
-        .push(MaterialType::Specular(SpecularMaterial::new(0.07, 250.)));
-    material_mixer
+        .push(MaterialType::Diffuse(DiffuseMaterial::new(1.)));
+    material_mixer_sphere
         .materials
-        .push(MaterialType::Diffuse(DiffuseMaterial::new(0.5)));
+        .push(MaterialType::Specular(SpecularMaterial::new(100., 250.)));
 
     let sphere: Sphere = Sphere::new(
         &Vec3A::new(0., 0., 0.),
         50.,
-        &MaterialType::Mixer(material_mixer),
+        &MaterialType::Mixer(material_mixer_sphere),
     );
     scene.renderables.push(GeometryType::Sphere(sphere));
 

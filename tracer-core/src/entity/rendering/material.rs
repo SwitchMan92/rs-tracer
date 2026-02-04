@@ -1,5 +1,4 @@
 use glam::{FloatExt, Vec3A, Vec4};
-use sdl2::surface;
 
 use crate::entity::{
     actor::{ActorTrait, DirectionalActorTrait},
@@ -9,6 +8,7 @@ use crate::entity::{
 };
 
 pub trait MaterialTrait {
+    #[allow(clippy::too_many_arguments)]
     fn calculate_illumination(
         &self,
         scene: &Scene,
@@ -30,7 +30,7 @@ pub struct ColorMaterial {
 
 impl ColorMaterial {
     pub fn new(color: Vec4) -> Self {
-        Self { color: color }
+        Self { color }
     }
 }
 
@@ -58,7 +58,7 @@ pub struct DiffuseMaterial {
 
 impl DiffuseMaterial {
     pub fn new(diffuse: f32) -> Self {
-        Self { diffuse: diffuse }
+        Self { diffuse }
     }
 }
 
@@ -75,7 +75,7 @@ impl MaterialTrait for DiffuseMaterial {
     ) -> Vec4 {
         let dot = light_ray.get_direction().dot(*surface_normal);
         let diffuse_vec = start_color * f32::max(0., dot);
-        diffuse_vec * self.diffuse
+        start_color * diffuse_vec * self.diffuse
     }
 }
 
@@ -88,17 +88,12 @@ pub struct SpecularMaterial {
 }
 
 impl SpecularMaterial {
-    pub fn new(specular_coef: f32, shininess: f32) -> Self {
+    pub fn new(specular_reflection_coef: f32, shininess: f32) -> Self {
         Self {
-            specular_reflection_coef: specular_coef,
-            shininess: shininess,
+            specular_reflection_coef,
+            shininess,
         }
     }
-}
-
-pub trait SpecularMaterialTrait {
-    fn get_specular_coef(&self) -> f32;
-    fn get_shininess_coef(&self) -> f32;
 }
 
 impl MaterialTrait for SpecularMaterial {
@@ -112,33 +107,13 @@ impl MaterialTrait for SpecularMaterial {
         start_color: &Vec4,
         _current_depth: &usize,
     ) -> Vec4 {
-        // let income_vector = light_ray.get_position() - light.get_position();
-        // let income_vector_n = income_vector.normalize();
-
-        // let my_dot = income_vector_n.dot(*surface_normal);
-        // let my_len = 2. * my_dot;
-
-        // let temp_normal = surface_normal * my_len;
-        // let reflect_vector = temp_normal + income_vector_n;
-        // let reflect_vector_n = reflect_vector.normalize();
-
-        // let mut my_spec = f32::max(reflect_vector_n.dot(income_vector_n), 0.);
-        // my_spec = my_spec.powf(5.);
-
-        // let specular_color = Vec4::ONE * my_spec;
-        // (start_color + specular_color * self.specular_reflection_coef)
-        //     .clamp(Vec4::ZERO, Vec4::new(255., 255., 255., 255.))
-
         let distance = light_ray.get_direction().length();
-        let light_dir = &light_ray.get_direction() / distance;
-        
+        let light_dir = light_ray.get_direction() / distance;
         let half_vector = (light_dir + ray.get_direction()).normalize();
-
         let ndoth = surface_normal.dot(half_vector);
         let specular_intensity = ndoth.saturate().powf(self.shininess);
 
         start_color + specular_intensity * Vec4::ONE * self.specular_reflection_coef
-
     }
 }
 
@@ -153,8 +128,8 @@ pub struct ReflectiveMaterial {
 impl ReflectiveMaterial {
     pub fn new(reflect_coef: f32, max_depth: usize) -> Self {
         Self {
-            reflect_coef: reflect_coef,
-            max_depth: max_depth,
+            reflect_coef,
+            max_depth,
         }
     }
 }
@@ -181,7 +156,7 @@ impl MaterialTrait for ReflectiveMaterial {
                 let color = scene
                     .render(
                         &relfection_ray,
-                        &light,
+                        light,
                         &RayType::Camera,
                         &(current_depth + 1),
                     )
@@ -199,8 +174,8 @@ pub struct MaterialMixer {
     pub materials: Vec<MaterialType>,
 }
 
-impl MaterialMixer {
-    pub fn new() -> Self {
+impl Default for MaterialMixer {
+    fn default() -> Self {
         Self {
             materials: Vec::<MaterialType>::with_capacity(1),
         }
@@ -218,7 +193,7 @@ impl MaterialTrait for MaterialMixer {
         start_color: &Vec4,
         current_depth: &usize,
     ) -> Vec4 {
-        let mut result_color = start_color.clone();
+        let mut result_color = *start_color;
 
         self.materials.iter().for_each(|x| {
             result_color = x.calculate_illumination(

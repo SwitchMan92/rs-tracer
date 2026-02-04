@@ -29,7 +29,7 @@ impl Sphere {
     pub fn new(position: &Vec3A, radius: f32, material: &MaterialType) -> Self {
         Self {
             actor: Actor::new(position),
-            radius: radius,
+            radius,
             material: material.to_owned(),
         }
     }
