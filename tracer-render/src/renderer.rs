@@ -61,10 +61,10 @@ impl<'a> Renderer<'a> {
                         }
                         Some(result) => {
                             buffer[it.0 * 4..(it.0 * 4) + 4].copy_from_slice(&[
-                                result.x as u8,
-                                result.y as u8,
-                                result.z as u8,
-                                result.w as u8,
+                                (result.x * 255.) as u8,
+                                (result.y * 255.) as u8,
+                                (result.z * 255.) as u8,
+                                (result.w * 255.) as u8,
                             ]);
                         }
                     });

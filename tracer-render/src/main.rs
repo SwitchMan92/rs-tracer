@@ -33,7 +33,7 @@ pub fn main() {
         RESOLUTION.1,
     );
 
-    let mut scene: Scene = Scene::new(&Vec4::new(10., 10., 10., 1.));
+    let mut scene: Scene = Scene::new(&Vec4::new(0., 0., 0., 1.));
 
     let mut material_mixer = MaterialMixer::new();
     material_mixer
@@ -45,26 +45,26 @@ pub fn main() {
         .materials
         .push(MaterialType::Diffuse(DiffuseMaterial::new(0.5)));
 
-    let light = Light::new(
-        &Vec3A::new(200., 200., 50.),
-        &Vec3A::new(0., -1., 0.),
-        50.,
-        &MaterialType::Color(ColorMaterial::new(Vec4::new(0., 255., 255., 1.))),
-    );
-
     let sphere: Sphere = Sphere::new(
         &Vec3A::new(0., 0., 0.),
         50.,
-        &MaterialType::Color(ColorMaterial::new(Vec4::new(0., 255., 0., 1.))),
+        &MaterialType::Mixer(material_mixer),
     );
     scene.renderables.push(GeometryType::Sphere(sphere));
 
     let plane: Plane = Plane::new(
         &Vec3A::new(0., -100., 0.),
         &Vec3A::new(0., 1., 1.),
-        &MaterialType::Color(ColorMaterial::new(Vec4::new(0., 0., 255., 1.))),
+        &MaterialType::Color(ColorMaterial::new(Vec4::new(0., 0., 1., 1.))),
     );
     scene.renderables.push(GeometryType::Plane(plane));
+
+    let light = Light::new(
+        &Vec3A::new(200., 200., 50.),
+        &Vec3A::new(0., -1., 0.),
+        50.,
+        &MaterialType::Color(ColorMaterial::new(Vec4::new(0., 1., 1., 1.))),
+    );
 
     loop {
         #[cfg(feature = "hyperfine")]

@@ -231,21 +231,20 @@ impl MaterialTrait for MaterialMixer {
         start_color: &Vec4,
         current_depth: &usize,
     ) -> Vec4 {
-        self.materials
-            .iter()
-            .map(|x| {
-                x.calculate_illumination(
-                    scene,
-                    surface_normal,
-                    ray,
-                    light,
-                    light_ray,
-                    start_color,
-                    current_depth,
-                )
-            })
-            .fold(Vec4::ZERO, |acc, ray_color| acc * ray_color)
-            / self.materials.len() as f32
+        let mut result_color = start_color.clone();
+
+        self.materials.iter().for_each(|x| {
+            result_color = x.calculate_illumination(
+                scene,
+                surface_normal,
+                ray,
+                light,
+                light_ray,
+                &result_color,
+                current_depth,
+            )
+        });
+        result_color
     }
 }
 
