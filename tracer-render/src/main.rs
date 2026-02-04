@@ -6,7 +6,7 @@ use tracer_core::entity::geometry::plane::Plane;
 use tracer_core::entity::geometry::sphere::Sphere;
 use tracer_core::entity::rendering::light::Light;
 use tracer_core::entity::rendering::material::{
-    ColorMaterial, DiffuseMaterial, MaterialMixer, MaterialType,
+    ColorMaterial, DiffuseMaterial, MaterialMixer, MaterialType, SpecularMaterial,
 };
 use tracer_core::entity::scene::Scene;
 use tracer_core::rendering::ray_emitter::RayEmitter;
@@ -43,6 +43,9 @@ pub fn main() {
         ))));
     material_mixer
         .materials
+        .push(MaterialType::Specular(SpecularMaterial::new(0.07, 250.)));
+    material_mixer
+        .materials
         .push(MaterialType::Diffuse(DiffuseMaterial::new(0.5)));
 
     let sphere: Sphere = Sphere::new(
@@ -60,7 +63,7 @@ pub fn main() {
     scene.renderables.push(GeometryType::Plane(plane));
 
     let light = Light::new(
-        &Vec3A::new(200., 200., 50.),
+        &Vec3A::new(0., 100., 50.),
         &Vec3A::new(0., -1., 0.),
         50.,
         &MaterialType::Color(ColorMaterial::new(Vec4::new(0., 1., 1., 1.))),

@@ -22,16 +22,16 @@ pub trait MaterialTrait {
 
 // ########################################
 
-pub trait ColorMaterialTrait {
-    fn get_color(&self) -> Vec4;
-}
-
 #[derive(Clone)]
 pub struct ColorMaterial {
     color: Vec4,
 }
 
 impl ColorMaterial {
+    fn get_color(&self) -> Vec4 {
+        self.color
+    }
+
     pub fn new(color: Vec4) -> Self {
         Self { color: color }
     }
@@ -52,12 +52,6 @@ impl MaterialTrait for ColorMaterial {
     }
 }
 
-impl ColorMaterialTrait for ColorMaterial {
-    fn get_color(&self) -> Vec4 {
-        self.color
-    }
-}
-
 // ########################################
 
 #[derive(Clone)]
@@ -65,11 +59,11 @@ pub struct DiffuseMaterial {
     diffuse: f32,
 }
 
-pub trait DiffuseMaterialTrait {
-    fn get_diffuse_coef(&self) -> f32;
-}
-
 impl DiffuseMaterial {
+    fn get_diffuse_coef(&self) -> f32 {
+        self.diffuse
+    }
+
     pub fn new(diffuse: f32) -> Self {
         Self { diffuse: diffuse }
     }
@@ -92,18 +86,28 @@ impl MaterialTrait for DiffuseMaterial {
     }
 }
 
-impl DiffuseMaterialTrait for DiffuseMaterial {
-    fn get_diffuse_coef(&self) -> f32 {
-        self.diffuse
-    }
-}
-
 // ########################################
 
 #[derive(Clone)]
 pub struct SpecularMaterial {
     specular_reflection_coef: f32,
     shininess: f32,
+}
+
+impl SpecularMaterial {
+    fn get_specular_coef(&self) -> f32 {
+        self.specular_reflection_coef
+    }
+    fn get_shininess_coef(&self) -> f32 {
+        self.shininess
+    }
+
+    pub fn new(specular_coef: f32, shininess: f32) -> Self {
+        Self {
+            specular_reflection_coef: specular_coef,
+            shininess: shininess,
+        }
+    }
 }
 
 pub trait SpecularMaterialTrait {
@@ -138,15 +142,6 @@ impl MaterialTrait for SpecularMaterial {
         let specular_color = Vec4::ONE * my_spec;
         (start_color + specular_color * self.specular_reflection_coef)
             .clamp(Vec4::ZERO, Vec4::new(255., 255., 255., 255.))
-    }
-}
-
-impl SpecularMaterialTrait for SpecularMaterial {
-    fn get_specular_coef(&self) -> f32 {
-        self.specular_reflection_coef
-    }
-    fn get_shininess_coef(&self) -> f32 {
-        self.shininess
     }
 }
 
