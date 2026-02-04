@@ -3,6 +3,11 @@ use std::fmt;
 
 use crate::entity::actor::{ActorTrait, DirectionalActor, DirectionalActorTrait};
 
+pub enum RayType {
+    Camera,
+    Light,
+}
+
 /// Structure holding a ray's geometric data.
 #[derive(Debug)]
 pub struct Ray {

@@ -1,23 +1,36 @@
 use crate::entity::actor::{Actor, ActorTrait, DirectionalActorTrait};
 use crate::entity::geometry::RayType;
 use crate::entity::geometry::{Geometry, ray::Ray};
-use crate::entity::rendering::material::{ColorMaterial, MaterialType};
+use crate::entity::rendering::material::{MaterialBound, MaterialType};
 
-use glam::{Vec3A, Vec4};
+use glam::Vec3A;
 
 /// Structure used to represent a spherical renderable.
 pub struct Sphere {
-    actor: Actor,
+    pub actor: Actor,
+    pub radius: f32,
     material: MaterialType,
-    radius: f32,
+}
+
+impl std::ops::Deref for Sphere {
+    type Target = Actor;
+    fn deref(&self) -> &Self::Target {
+        &self.actor
+    }
+}
+
+impl MaterialBound for Sphere {
+    fn get_material(&self) -> &MaterialType {
+        &self.material
+    }
 }
 
 impl Sphere {
-    pub fn new(position: &Vec3A, radius: f32, color: Vec4) -> Self {
+    pub fn new(position: &Vec3A, radius: f32, material: &MaterialType) -> Self {
         Self {
             actor: Actor::new(position),
-            material: MaterialType::Color(ColorMaterial::new(&color)),
-            radius,
+            radius: radius,
+            material: material.to_owned(),
         }
     }
 }
@@ -29,7 +42,6 @@ impl ActorTrait for Sphere {
 }
 
 impl Geometry for Sphere {
-    //// Return the sphere's normal vector.
     fn get_surface_normal(&self, point: &Vec3A) -> Vec3A {
         (point - self.get_position()) / self.radius
     }
@@ -91,29 +103,26 @@ mod tests {
     use glam::{Vec3A, Vec4};
 
     use crate::entity::{
-        actor::Actor,
         geometry::{Geometry, RayType, ray::Ray, sphere::Sphere},
         rendering::material::{ColorMaterial, MaterialType},
     };
 
     #[test]
     fn test_success_intersect() {
-        const COLOR: Vec4 = Vec4::new(255., 255., 255., 0.);
-
         let ray = Ray::new(&Vec3A::new(0., 2., 0.), &Vec3A::new(1., -1., 0.));
-
-        let sphere = Sphere::new(&Vec3A::new(2., 1., 0.), 1., COLOR);
-
+        let sphere = Sphere::new(
+            &Vec3A::new(2., 1., 0.),
+            1.,
+            &MaterialType::Color(ColorMaterial::new(Vec4::ONE)),
+        );
         assert!(sphere.intersect(&ray, &RayType::Camera) != None);
 
         let ray = Ray::new(&Vec3A::new(0., 2., 0.), &Vec3A::new(-1., -1., 0.));
-
-        let sphere = Sphere {
-            actor: Actor::new(&Vec3A::new(-2., 1., 0.)),
-            material: MaterialType::Color(ColorMaterial::default()),
-            radius: 1.,
-        };
-
+        let sphere = Sphere::new(
+            &Vec3A::new(-2., 1., 0.),
+            1.,
+            &MaterialType::Color(ColorMaterial::new(Vec4::ONE)),
+        );
         assert!(sphere.intersect(&ray, &RayType::Camera) != None);
     }
 
@@ -122,17 +131,19 @@ mod tests {
     #[test]
     fn test_failure_intersect() {
         let ray = Ray::new(&Vec3A::new(0., 2., 0.), &Vec3A::new(1., 1., 0.));
-
-        const COLOR: Vec4 = Vec4::new(255., 255., 255., 0.);
-
-        let sphere = Sphere::new(&Vec3A::new(-2., 1., 0.), 1., COLOR);
-
+        let sphere = Sphere::new(
+            &Vec3A::new(-2., 1., 0.),
+            1.,
+            &MaterialType::Color(ColorMaterial::new(Vec4::ONE)),
+        );
         assert_eq!(sphere.intersect(&ray, &RayType::Camera), None);
 
         let ray = Ray::new(&Vec3A::new(0., 2., 0.), &Vec3A::new(-1., 1., 0.));
-
-        let sphere = Sphere::new(&Vec3A::new(-2., 1., 0.), 1., COLOR);
-
+        let sphere = Sphere::new(
+            &Vec3A::new(-2., 1., 0.),
+            1.,
+            &MaterialType::Color(ColorMaterial::new(Vec4::ONE)),
+        );
         assert_eq!(sphere.intersect(&ray, &RayType::Camera), None);
     }
 }

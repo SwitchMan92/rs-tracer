@@ -3,7 +3,7 @@ use glam::Vec3A;
 use crate::entity::{
     actor::{ActorTrait, DirectionalActor, DirectionalActorTrait},
     geometry::{Geometry, RayType, ray::Ray},
-    rendering::material::MaterialType,
+    rendering::material::{MaterialBound, MaterialType},
 };
 
 /// Structure representing a Planar surface.
@@ -16,8 +16,21 @@ impl Plane {
     pub fn new(position: &Vec3A, direction: &Vec3A, material: &MaterialType) -> Self {
         Self {
             dir_actor: DirectionalActor::new(position, direction),
-            material: material.clone(),
+            material: material.to_owned(),
         }
+    }
+}
+
+impl MaterialBound for Plane {
+    fn get_material(&self) -> &MaterialType {
+        &self.material
+    }
+}
+
+impl std::ops::Deref for Plane {
+    type Target = DirectionalActor;
+    fn deref(&self) -> &Self::Target {
+        &self.dir_actor
     }
 }
 
@@ -28,18 +41,13 @@ impl ActorTrait for Plane {
 }
 
 impl Geometry for Plane {
-    //// Return the plane's normal vector.
     fn get_surface_normal(&self, _point: &Vec3A) -> Vec3A {
         self.dir_actor.get_direction()
     }
 
-    fn get_material(&self) -> &MaterialType {
-        &self.material
-    }
-
     //// check if the ray intersects with the current plane structure and return the ray's color post-interaction.
     fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3A)> {
-        let n_dot_l = ray.get_direction().dot(self.dir_actor.get_direction());
+        let n_dot_l = ray.get_direction().dot(self.get_direction());
         match n_dot_l {
             x if x < 0.001 => None,
             _ => {
@@ -71,7 +79,6 @@ mod tests {
     use glam::{Vec3A, Vec4};
 
     use crate::entity::{
-        actor::DirectionalActor,
         geometry::{Geometry, RayType, plane::Plane, ray::Ray},
         rendering::material::{ColorMaterial, MaterialType},
     };
@@ -79,12 +86,11 @@ mod tests {
     #[test]
     fn test_success_intersect() {
         let ray = Ray::new(&Vec3A::new(0., 2., 0.), &Vec3A::new(1., -1., 0.));
-
-        let plane = Plane {
-            dir_actor: DirectionalActor::new(&Vec3A::new(2., 1., 0.), &Vec3A::new(2., 1., 0.)),
-            material: MaterialType::Color(ColorMaterial::default()),
-        };
-
+        let plane = Plane::new(
+            &Vec3A::new(2., 1., 0.),
+            &Vec3A::new(2., 1., 0.),
+            &MaterialType::Color(ColorMaterial::new(Vec4::ONE)),
+        );
         assert!(plane.intersect(&ray, &RayType::Camera) != None);
     }
 }
