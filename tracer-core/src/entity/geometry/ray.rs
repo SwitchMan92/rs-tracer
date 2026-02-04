@@ -1,7 +1,12 @@
-use glam::Vec3;
+use glam::Vec3A;
 use std::fmt;
 
 use crate::entity::actor::{ActorTrait, DirectionalActor, DirectionalActorTrait};
+
+pub enum RayType {
+    Camera,
+    Light,
+}
 
 /// Structure holding a ray's geometric data.
 #[derive(Debug)]
@@ -17,7 +22,7 @@ impl std::ops::Deref for Ray {
 }
 
 impl Ray {
-    pub const fn new(position: &Vec3, direction: &Vec3) -> Self {
+    pub const fn new(position: &Vec3A, direction: &Vec3A) -> Self {
         Self {
             dir_actor: DirectionalActor::new(position, direction),
         }

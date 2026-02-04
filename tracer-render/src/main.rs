@@ -1,10 +1,13 @@
-use glam::{Vec3, Vec4};
+use glam::{Vec3A, Vec4};
 
 use renderer::Renderer;
-use tracer_core::entity::geometry::GeometryImpl;
+use tracer_core::entity::geometry::GeometryType;
 use tracer_core::entity::geometry::plane::Plane;
 use tracer_core::entity::geometry::sphere::Sphere;
 use tracer_core::entity::rendering::light::Light;
+use tracer_core::entity::rendering::material::{
+    ColorMaterial, DiffuseMaterial, MaterialMixer, MaterialType,
+};
 use tracer_core::entity::scene::Scene;
 use tracer_core::rendering::ray_emitter::RayEmitter;
 
@@ -24,30 +27,44 @@ pub fn main() {
     let video_subsystem = sdl_context.video().unwrap();
     let renderer = Renderer::new(&video_subsystem, &sdl_context, RESOLUTION.0, RESOLUTION.1);
     let camera_emitter = RayEmitter::new(
-        Vec3::new(0., 0., -10.),
-        Vec3::new(0., 0., 1.),
+        Vec3A::new(0., 0., -10.),
+        Vec3A::new(0., 0., 1.),
         RESOLUTION.0,
         RESOLUTION.1,
     );
 
     let mut scene: Scene = Scene::new(&Vec4::new(10., 10., 10., 1.));
 
+    let mut material_mixer = MaterialMixer::new();
+    material_mixer
+        .materials
+        .push(MaterialType::Color(ColorMaterial::new(Vec4::new(
+            0., 1., 0., 1.,
+        ))));
+    material_mixer
+        .materials
+        .push(MaterialType::Diffuse(DiffuseMaterial::new(0.5)));
+
     let light = Light::new(
-        &Vec3::new(200., 200., 50.),
-        &Vec3::new(0., -1., 0.),
+        &Vec3A::new(200., 200., 50.),
+        &Vec3A::new(0., -1., 0.),
         50.,
-        Vec4::new(0., 255., 255., 1.),
+        &MaterialType::Color(ColorMaterial::new(Vec4::new(0., 255., 255., 1.))),
     );
 
-    let sphere: Sphere = Sphere::new(&Vec3::new(0., 0., 0.), 50., Vec4::new(0., 255., 0., 1.));
-    scene.renderables.push(GeometryImpl::Sphere(sphere));
+    let sphere: Sphere = Sphere::new(
+        &Vec3A::new(0., 0., 0.),
+        50.,
+        &MaterialType::Color(ColorMaterial::new(Vec4::new(0., 255., 0., 1.))),
+    );
+    scene.renderables.push(GeometryType::Sphere(sphere));
 
     let plane: Plane = Plane::new(
-        &Vec3::new(0., -100., 0.),
-        &Vec3::new(0., 1., 1.),
-        &Vec4::new(0., 0., 255., 1.),
+        &Vec3A::new(0., -100., 0.),
+        &Vec3A::new(0., 1., 1.),
+        &MaterialType::Color(ColorMaterial::new(Vec4::new(0., 0., 255., 1.))),
     );
-    scene.renderables.push(GeometryImpl::Plane(plane));
+    scene.renderables.push(GeometryType::Plane(plane));
 
     loop {
         #[cfg(feature = "hyperfine")]

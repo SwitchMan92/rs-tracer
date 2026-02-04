@@ -3,24 +3,21 @@ use glam::Vec4;
 
 use crate::entity::{
     actor::{ActorTrait, DirectionalActorTrait},
-    geometry::{Geometry, GeometryImpl, RayType, ray::Ray},
-    rendering::light::Light,
+    geometry::{
+        Geometry, GeometryType,
+        ray::{Ray, RayType},
+    },
+    rendering::{
+        Renderable,
+        light::Light,
+        material::{MaterialBound, MaterialTrait},
+    },
 };
 
 /// Container structure representing the scene's composition.
 pub struct Scene {
-    pub renderables: Vec<GeometryImpl>,
+    pub renderables: Vec<GeometryType>,
     pub ambient: Vec4,
-}
-
-pub trait Renderable {
-    fn render(
-        &self,
-        ray: &Ray,
-        light: &Light,
-        ray_type: &RayType,
-        current_depth: &usize,
-    ) -> Option<Vec4>;
 }
 
 impl Renderable for Scene {
@@ -32,7 +29,6 @@ impl Renderable for Scene {
         ray_type: &RayType,
         _current_depth: &usize,
     ) -> Option<Vec4> {
-        let mut result_color = Vec4::new(0., 0., 0., 0.);
         let mut t_min = f32::NAN;
         let mut renderable_index: usize = 0;
 
@@ -42,7 +38,6 @@ impl Renderable for Scene {
             {
                 t_min = hit.0;
                 renderable_index = x.0;
-                result_color = hit.2;
             }
         });
 
@@ -50,8 +45,6 @@ impl Renderable for Scene {
             true => Some(self.ambient),
             false => {
                 let intersection_point = ray.get_direction() * t_min + ray.get_position();
-                let normal =
-                    self.renderables[renderable_index].get_surface_normal(&intersection_point);
                 let light_ray = Ray::new(
                     &intersection_point,
                     &(light.get_position() - intersection_point),
@@ -69,9 +62,22 @@ impl Renderable for Scene {
                         .count() as f32,
                     1.,
                 );
-                let dot = light_ray.get_direction().dot(normal);
-                let diffuse = result_color * f32::max(0., dot);
-                Some(diffuse * self.ambient * see_light)
+                let renderable = &self.renderables[renderable_index];
+
+                match see_light {
+                    0. => None,
+                    x => Some(
+                        renderable.get_material().calculate_illumination(
+                            &self,
+                            &renderable.get_surface_normal(&intersection_point),
+                            &ray,
+                            &light,
+                            &light_ray,
+                            &self.ambient,
+                            &0,
+                        ) * x,
+                    ),
+                }
             }
         }
     }
@@ -85,7 +91,7 @@ impl Scene {
         }
     }
 
-    pub fn get_renderables(&self) -> &Vec<GeometryImpl> {
+    pub fn get_renderables(&self) -> &Vec<GeometryType> {
         &self.renderables
     }
 }

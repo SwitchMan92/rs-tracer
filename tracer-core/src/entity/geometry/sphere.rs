@@ -1,14 +1,15 @@
 use crate::entity::actor::{Actor, ActorTrait, DirectionalActorTrait};
 use crate::entity::geometry::RayType;
 use crate::entity::geometry::{Geometry, ray::Ray};
+use crate::entity::rendering::material::{MaterialBound, MaterialType};
 
-use glam::{Vec3, Vec4};
+use glam::Vec3A;
 
 /// Structure used to represent a spherical renderable.
 pub struct Sphere {
     pub actor: Actor,
     pub radius: f32,
-    pub color: Vec4,
+    material: MaterialType,
 }
 
 impl std::ops::Deref for Sphere {
@@ -18,30 +19,35 @@ impl std::ops::Deref for Sphere {
     }
 }
 
+impl MaterialBound for Sphere {
+    fn get_material(&self) -> &MaterialType {
+        &self.material
+    }
+}
+
 impl Sphere {
-    pub const fn new(position: &Vec3, radius: f32, color: Vec4) -> Self {
+    pub fn new(position: &Vec3A, radius: f32, material: &MaterialType) -> Self {
         Self {
             actor: Actor::new(position),
-            radius,
-            color,
+            radius: radius,
+            material: material.to_owned(),
         }
     }
 }
 
 impl ActorTrait for Sphere {
-    fn get_position(&self) -> Vec3 {
+    fn get_position(&self) -> Vec3A {
         self.actor.get_position()
     }
 }
 
 impl Geometry for Sphere {
-    //// Return the sphere's normal vector.
-    fn get_surface_normal(&self, point: &Vec3) -> Vec3 {
+    fn get_surface_normal(&self, point: &Vec3A) -> Vec3A {
         (point - self.get_position()) / self.radius
     }
 
     /// Check line-circle plain intersection and return the ray color post-interaction.
-    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3, Vec4)> {
+    fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3A)> {
         let d = ray.get_direction();
         let f = ray.get_position() - self.position;
 
@@ -80,7 +86,7 @@ impl Geometry for Sphere {
                     }
                 };
 
-                t.map(|t| (t, ray.get_position() + t * ray.get_direction(), self.color))
+                t.map(|t| (t, ray.get_position() + t * ray.get_direction()))
             }
         }
     }
@@ -90,31 +96,29 @@ impl Geometry for Sphere {
 
 #[cfg(test)]
 mod tests {
-    use glam::{Vec3, Vec4};
+    use glam::{Vec3A, Vec4};
 
     use crate::entity::{
-        actor::Actor,
         geometry::{Geometry, RayType, ray::Ray, sphere::Sphere},
+        rendering::material::{ColorMaterial, MaterialType},
     };
 
     #[test]
     fn test_success_intersect() {
-        const COLOR: Vec4 = Vec4::new(255., 255., 255., 0.);
-
-        let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(1., -1., 0.));
-
-        let sphere = Sphere::new(&Vec3::new(2., 1., 0.), 1., COLOR);
-
+        let ray = Ray::new(&Vec3A::new(0., 2., 0.), &Vec3A::new(1., -1., 0.));
+        let sphere = Sphere::new(
+            &Vec3A::new(2., 1., 0.),
+            1.,
+            &MaterialType::Color(ColorMaterial::new(Vec4::ONE)),
+        );
         assert!(sphere.intersect(&ray, &RayType::Camera) != None);
 
-        let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(-1., -1., 0.));
-
-        let sphere = Sphere {
-            actor: Actor::new(&Vec3::new(-2., 1., 0.)),
-            color: COLOR,
-            radius: 1.,
-        };
-
+        let ray = Ray::new(&Vec3A::new(0., 2., 0.), &Vec3A::new(-1., -1., 0.));
+        let sphere = Sphere::new(
+            &Vec3A::new(-2., 1., 0.),
+            1.,
+            &MaterialType::Color(ColorMaterial::new(Vec4::ONE)),
+        );
         assert!(sphere.intersect(&ray, &RayType::Camera) != None);
     }
 
@@ -122,18 +126,20 @@ mod tests {
 
     #[test]
     fn test_failure_intersect() {
-        let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(1., 1., 0.));
-
-        const COLOR: Vec4 = Vec4::new(255., 255., 255., 0.);
-
-        let sphere = Sphere::new(&Vec3::new(-2., 1., 0.), 1., COLOR);
-
+        let ray = Ray::new(&Vec3A::new(0., 2., 0.), &Vec3A::new(1., 1., 0.));
+        let sphere = Sphere::new(
+            &Vec3A::new(-2., 1., 0.),
+            1.,
+            &MaterialType::Color(ColorMaterial::new(Vec4::ONE)),
+        );
         assert_eq!(sphere.intersect(&ray, &RayType::Camera), None);
 
-        let ray = Ray::new(&Vec3::new(0., 2., 0.), &Vec3::new(-1., 1., 0.));
-
-        let sphere = Sphere::new(&Vec3::new(-2., 1., 0.), 1., COLOR);
-
+        let ray = Ray::new(&Vec3A::new(0., 2., 0.), &Vec3A::new(-1., 1., 0.));
+        let sphere = Sphere::new(
+            &Vec3A::new(-2., 1., 0.),
+            1.,
+            &MaterialType::Color(ColorMaterial::new(Vec4::ONE)),
+        );
         assert_eq!(sphere.intersect(&ray, &RayType::Camera), None);
     }
 }
