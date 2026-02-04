@@ -46,14 +46,10 @@ impl Geometry for Sphere {
         (point - self.get_position()) / self.radius
     }
 
-    fn get_material(&self) -> &MaterialType {
-        &self.material
-    }
-
     /// Check line-circle plain intersection and return the ray color post-interaction.
     fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3A)> {
         let d = ray.get_direction();
-        let f = ray.get_position() - self.actor.get_position();
+        let f = ray.get_position() - self.position;
 
         let a = d.dot(d);
         let b = 2. * f.dot(d);

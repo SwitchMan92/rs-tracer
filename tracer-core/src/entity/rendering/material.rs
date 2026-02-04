@@ -52,20 +52,6 @@ impl MaterialTrait for ColorMaterial {
     }
 }
 
-impl Default for ColorMaterial {
-    fn default() -> Self {
-        Self {
-            color: Vec4::new(127., 127., 127., 255.),
-        }
-    }
-}
-
-impl ColorMaterial {
-    pub fn new(color: &Vec4) -> Self {
-        Self { color: *color }
-    }
-}
-
 // ########################################
 
 #[derive(Clone)]
@@ -210,15 +196,6 @@ impl MaterialTrait for ReflectiveMaterial {
                     .unwrap();
                 start_color + self.reflect_coef * (color / (*current_depth as f32))
             }
-        }
-    }
-}
-
-impl Default for ReflectiveMaterial {
-    fn default() -> Self {
-        Self {
-            reflect_coef: 1.,
-            max_depth: 1,
         }
     }
 }

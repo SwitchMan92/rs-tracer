@@ -62,12 +62,4 @@ impl MaterialBound for GeometryType {
             GeometryType::Light(i) => i.get_material(),
         }
     }
-
-    fn get_material(&self) -> &MaterialType {
-        match self {
-            GeometryImpl::Plane(i) => i.get_material(),
-            GeometryImpl::Sphere(i) => i.get_material(),
-            GeometryImpl::Light(i) => i.get_material(),
-        }
-    }
 }
