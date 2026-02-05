@@ -16,6 +16,7 @@ pub trait MaterialTrait {
         ray: &Ray,
         light: &Light,
         light_ray: &Ray,
+        shadow_coef: &f32,
         start_color: &Vec4,
         current_depth: &usize,
     ) -> Vec4;
@@ -42,6 +43,7 @@ impl MaterialTrait for ColorMaterial {
         _ray: &Ray,
         _light: &Light,
         _light_ray: &Ray,
+        _shadow_coef: &f32,
         _start_color: &Vec4,
         _current_depth: &usize,
     ) -> Vec4 {
@@ -70,12 +72,13 @@ impl MaterialTrait for DiffuseMaterial {
         _ray: &Ray,
         _light: &Light,
         light_ray: &Ray,
+        shadow_coef: &f32,
         start_color: &Vec4,
         _current_depth: &usize,
     ) -> Vec4 {
         let dot = light_ray.get_direction().dot(*surface_normal);
         let diffuse_vec = start_color * f32::max(0., dot);
-        start_color * diffuse_vec * self.diffuse
+        ((start_color * diffuse_vec * self.diffuse) * shadow_coef).clamp(Vec4::ZERO, Vec4::ONE)
     }
 }
 
@@ -104,6 +107,7 @@ impl MaterialTrait for SpecularMaterial {
         ray: &Ray,
         _light: &Light,
         light_ray: &Ray,
+        _shadow_coef: &f32,
         start_color: &Vec4,
         _current_depth: &usize,
     ) -> Vec4 {
@@ -113,7 +117,8 @@ impl MaterialTrait for SpecularMaterial {
         let ndoth = surface_normal.dot(half_vector);
         let specular_intensity = ndoth.saturate().powf(self.shininess);
 
-        start_color + specular_intensity * Vec4::ONE * self.specular_reflection_coef
+        (start_color + specular_intensity * Vec4::ONE * self.specular_reflection_coef)
+            .clamp(Vec4::ZERO, Vec4::ONE)
     }
 }
 
@@ -142,26 +147,31 @@ impl MaterialTrait for ReflectiveMaterial {
         ray: &Ray,
         light: &Light,
         light_ray: &Ray,
+        _shadow_coef: &f32,
         start_color: &Vec4,
         current_depth: &usize,
     ) -> Vec4 {
         match *current_depth {
             x if x >= self.max_depth => *start_color,
             _ => {
-                let direction = (ray.get_direction()
-                    - surface_normal * 2. * ray.get_direction().dot(*surface_normal))
-                .normalize();
-                let start = light_ray.get_position() + 0.0001 * surface_normal;
-                let relfection_ray = Ray::new(&start, &direction);
-                let color = scene
-                    .render(
-                        &relfection_ray,
-                        light,
-                        &RayType::Camera,
-                        &(current_depth + 1),
-                    )
-                    .unwrap();
-                start_color + self.reflect_coef * (color / (*current_depth as f32))
+                // let direction = (ray.get_direction()
+                //     - surface_normal * 2. * surface_normal.dot(ray.get_direction()))
+                // .normalize();
+
+                let relfection_ray = Ray::new(&light_ray.get_position(), &-light_ray.get_direction());
+                let color = scene.render(
+                    &relfection_ray,
+                    light,
+                    &RayType::Camera,
+                    &(current_depth + 1),
+                );
+
+                match color {
+                    None => *start_color,
+                    Some(color) => {
+                        (start_color + self.reflect_coef * color).clamp(Vec4::ZERO, Vec4::ONE)
+                    }
+                }
             }
         }
     }
@@ -190,6 +200,7 @@ impl MaterialTrait for MaterialMixer {
         ray: &Ray,
         light: &Light,
         light_ray: &Ray,
+        shadow_coef: &f32,
         start_color: &Vec4,
         current_depth: &usize,
     ) -> Vec4 {
@@ -202,11 +213,12 @@ impl MaterialTrait for MaterialMixer {
                 ray,
                 light,
                 light_ray,
+                shadow_coef,
                 &result_color,
                 current_depth,
             )
         });
-        result_color
+        result_color.clamp(Vec4::ZERO, Vec4::ONE)
     }
 }
 
@@ -229,6 +241,7 @@ impl MaterialTrait for MaterialType {
         ray: &Ray,
         light: &Light,
         light_ray: &Ray,
+        _shadow_coef: &f32,
         start_color: &Vec4,
         current_depth: &usize,
     ) -> Vec4 {
@@ -239,6 +252,7 @@ impl MaterialTrait for MaterialType {
                 ray,
                 light,
                 light_ray,
+                _shadow_coef,
                 start_color,
                 current_depth,
             ),
@@ -248,6 +262,7 @@ impl MaterialTrait for MaterialType {
                 ray,
                 light,
                 light_ray,
+                _shadow_coef,
                 start_color,
                 current_depth,
             ),
@@ -257,6 +272,7 @@ impl MaterialTrait for MaterialType {
                 ray,
                 light,
                 light_ray,
+                _shadow_coef,
                 start_color,
                 current_depth,
             ),
@@ -266,6 +282,7 @@ impl MaterialTrait for MaterialType {
                 ray,
                 light,
                 light_ray,
+                _shadow_coef,
                 start_color,
                 current_depth,
             ),
@@ -275,6 +292,7 @@ impl MaterialTrait for MaterialType {
                 ray,
                 light,
                 light_ray,
+                _shadow_coef,
                 start_color,
                 current_depth,
             ),

@@ -63,22 +63,19 @@ impl Renderable for Scene {
                     1.,
                 );
                 let renderable = &self.renderables[renderable_index];
-
-                match see_light {
-                    0. => None,
-                    x => Some(
-                        self.ambient
-                            + renderable.get_material().calculate_illumination(
-                                self,
-                                &renderable.get_surface_normal(&intersection_point),
-                                ray,
-                                light,
-                                &light_ray,
-                                &Vec4::ZERO,
-                                &0,
-                            ) * x,
-                    ),
-                }
+                Some(
+                    self.ambient
+                    + renderable.get_material().calculate_illumination(
+                        self,
+                        &renderable.get_surface_normal(&intersection_point),
+                        ray,
+                        light,
+                        &light_ray,
+                        &see_light,
+                        &Vec4::ZERO,
+                        &0,
+                    )
+                )
             }
         }
     }

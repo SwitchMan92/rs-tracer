@@ -6,7 +6,8 @@ use tracer_core::entity::geometry::plane::Plane;
 use tracer_core::entity::geometry::sphere::Sphere;
 use tracer_core::entity::rendering::light::Light;
 use tracer_core::entity::rendering::material::{
-    ColorMaterial, DiffuseMaterial, MaterialMixer, MaterialType, SpecularMaterial,
+    ColorMaterial, DiffuseMaterial, MaterialMixer, MaterialType, ReflectiveMaterial,
+    SpecularMaterial,
 };
 use tracer_core::entity::scene::Scene;
 use tracer_core::rendering::ray_emitter::RayEmitter;
@@ -33,7 +34,7 @@ pub fn main() {
         RESOLUTION.1,
     );
 
-    let mut scene: Scene = Scene::new(&Vec4::new(0., 0., 0., 1.));
+    let mut scene: Scene = Scene::new(&Vec4::new(0.1, 0.1, 0.1, 1.));
 
     let mut material_mixer_sphere = MaterialMixer::default();
     material_mixer_sphere
@@ -51,19 +52,39 @@ pub fn main() {
     let sphere: Sphere = Sphere::new(
         &Vec3A::new(0., 0., 0.),
         50.,
-        &MaterialType::Mixer(material_mixer_sphere),
+        &MaterialType::Mixer(material_mixer_sphere.clone()),
     );
     scene.renderables.push(GeometryType::Sphere(sphere));
+
+    let sphere2: Sphere = Sphere::new(
+        &Vec3A::new(-250., 0., 0.),
+        50.,
+        &MaterialType::Mixer(material_mixer_sphere.clone()),
+    );
+    scene.renderables.push(GeometryType::Sphere(sphere2));
+
+    let mut material_mixer_plane = MaterialMixer::default();
+    material_mixer_plane
+        .materials
+        .push(MaterialType::Color(ColorMaterial::new(Vec4::new(
+            0., 0., 1., 1.,
+        ))));
+    material_mixer_plane
+        .materials
+        .push(MaterialType::Diffuse(DiffuseMaterial::new(1.)));
+    // material_mixer_plane
+    //     .materials
+    //     .push(MaterialType::Reflective(ReflectiveMaterial::new(1., 1)));
 
     let plane: Plane = Plane::new(
         &Vec3A::new(0., -100., 0.),
         &Vec3A::new(0., 1., 1.),
-        &MaterialType::Color(ColorMaterial::new(Vec4::new(0., 0., 1., 1.))),
+        &MaterialType::Mixer(material_mixer_plane),
     );
     scene.renderables.push(GeometryType::Plane(plane));
 
     let light = Light::new(
-        &Vec3A::new(0., 100., 50.),
+        &Vec3A::new(0., 500., 50.),
         &Vec3A::new(0., -1., 0.),
         50.,
         &MaterialType::Color(ColorMaterial::new(Vec4::new(0., 1., 1., 1.))),
