@@ -56,13 +56,6 @@ pub fn main() {
     );
     scene.renderables.push(GeometryType::Sphere(sphere));
 
-    let sphere2: Sphere = Sphere::new(
-        &Vec3A::new(-250., 0., 0.),
-        50.,
-        &MaterialType::Mixer(material_mixer_sphere.clone()),
-    );
-    scene.renderables.push(GeometryType::Sphere(sphere2));
-
     let mut material_mixer_plane = MaterialMixer::default();
     material_mixer_plane
         .materials
@@ -72,9 +65,6 @@ pub fn main() {
     material_mixer_plane
         .materials
         .push(MaterialType::Diffuse(DiffuseMaterial::new(1.)));
-    // material_mixer_plane
-    //     .materials
-    //     .push(MaterialType::Reflective(ReflectiveMaterial::new(1., 1)));
 
     let plane: Plane = Plane::new(
         &Vec3A::new(0., -100., 0.),
@@ -84,7 +74,7 @@ pub fn main() {
     scene.renderables.push(GeometryType::Plane(plane));
 
     let light = Light::new(
-        &Vec3A::new(0., 500., 50.),
+        &Vec3A::new(200., 500., 50.),
         &Vec3A::new(0., -1., 0.),
         50.,
         &MaterialType::Color(ColorMaterial::new(Vec4::new(0., 1., 1., 1.))),

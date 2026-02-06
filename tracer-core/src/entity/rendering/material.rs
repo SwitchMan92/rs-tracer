@@ -158,7 +158,8 @@ impl MaterialTrait for ReflectiveMaterial {
                 //     - surface_normal * 2. * surface_normal.dot(ray.get_direction()))
                 // .normalize();
 
-                let relfection_ray = Ray::new(&light_ray.get_position(), &-light_ray.get_direction());
+                let relfection_ray =
+                    Ray::new(&light_ray.get_position(), &-light_ray.get_direction());
                 let color = scene.render(
                     &relfection_ray,
                     light,

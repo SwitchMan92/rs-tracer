@@ -22,7 +22,7 @@ impl ActorTrait for Actor {
 impl Actor {
     pub const fn new(position: &Vec3A) -> Self {
         Self {
-            position: *position, // copying here as we want ownership of the Vec3A by the actor.
+            position: *position,
         }
     }
 }
