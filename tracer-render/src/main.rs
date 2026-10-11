@@ -1,9 +1,14 @@
 use glam::{Vec3A, Vec4};
 
 use renderer::Renderer;
-use tracer_core::entity::geometry::GeometryImpl;
+use tracer_core::entity::geometry::GeometryType;
+use tracer_core::entity::geometry::plane::Plane;
 use tracer_core::entity::geometry::sphere::Sphere;
 use tracer_core::entity::rendering::light::Light;
+use tracer_core::entity::rendering::material::{
+    ColorMaterial, DiffuseMaterial, MaterialMixer, MaterialType, ReflectiveMaterial,
+    SpecularMaterial,
+};
 use tracer_core::entity::scene::Scene;
 use tracer_core::rendering::ray_emitter::RayEmitter;
 
@@ -29,24 +34,51 @@ pub fn main() {
         RESOLUTION.1,
     );
 
-    let mut scene: Scene = Scene::new(&Vec4::new(10., 10., 10., 1.));
+    let mut scene: Scene = Scene::new(&Vec4::new(0.1, 0.1, 0.1, 1.));
 
-    let light = Light::new(
-        &Vec3A::new(200., 200., 50.),
-        &Vec3A::new(0., -1., 0.),
-        20.,
-        Vec4::new(255., 255., 255., 1.),
-    );
-
-    let sphere: Sphere = Sphere::new(&Vec3A::new(0., 0., 0.), 50., Vec4::new(0., 255., 0., 1.));
-    scene.renderables.push(GeometryImpl::Sphere(sphere));
+    let mut material_mixer_sphere = MaterialMixer::default();
+    material_mixer_sphere
+        .materials
+        .push(MaterialType::Color(ColorMaterial::new(Vec4::new(
+            0., 1., 0., 1.,
+        ))));
+    material_mixer_sphere
+        .materials
+        .push(MaterialType::Diffuse(DiffuseMaterial::new(1.)));
+    material_mixer_sphere
+        .materials
+        .push(MaterialType::Specular(SpecularMaterial::new(100., 250.)));
 
     let sphere: Sphere = Sphere::new(
-        &Vec3A::new(0., -100., 0.),
-        20.,
-        Vec4::new(0., 0., 255., 1.),
+        &Vec3A::new(0., 0., 0.),
+        50.,
+        &MaterialType::Mixer(material_mixer_sphere.clone()),
     );
-    scene.renderables.push(GeometryImpl::Sphere(sphere));
+    scene.renderables.push(GeometryType::Sphere(sphere));
+
+    let mut material_mixer_plane = MaterialMixer::default();
+    material_mixer_plane
+        .materials
+        .push(MaterialType::Color(ColorMaterial::new(Vec4::new(
+            0., 0., 1., 1.,
+        ))));
+    material_mixer_plane
+        .materials
+        .push(MaterialType::Diffuse(DiffuseMaterial::new(1.)));
+
+    let plane: Plane = Plane::new(
+        &Vec3A::new(0., -100., 0.),
+        &Vec3A::new(0., 1., 1.),
+        &MaterialType::Mixer(material_mixer_plane),
+    );
+    scene.renderables.push(GeometryType::Plane(plane));
+
+    let light = Light::new(
+        &Vec3A::new(200., 500., 50.),
+        &Vec3A::new(0., -1., 0.),
+        50.,
+        &MaterialType::Color(ColorMaterial::new(Vec4::new(0., 1., 1., 1.))),
+    );
 
     loop {
         #[cfg(feature = "hyperfine")]

@@ -4,9 +4,9 @@ use sdl2::{Sdl, VideoSubsystem, event::Event, keyboard::Keycode, video::Window};
 
 use tracer_core::{
     entity::{
-        geometry::RayType,
-        rendering::light::Light,
-        scene::{Renderable, Scene},
+        geometry::ray::RayType,
+        rendering::{Renderable, light::Light},
+        scene::Scene,
     },
     rendering::{image_filter, ray_emitter::RayEmitter},
 };
@@ -43,7 +43,7 @@ impl<'a> Renderer<'a> {
     /// Draw each object on the window surface, from the furthest to the nearest.
     pub fn render(&self, ray_emitter: &RayEmitter, scene: &mut Scene, light: &Light) -> bool {
         let mut event_pump = self.sdl_context.event_pump().unwrap();
-
+        // .render(ray, light, &RayType::Camera, &0)
         {
             let mut surface = self.window.surface(&event_pump).unwrap();
             surface.enable_RLE();
@@ -61,10 +61,10 @@ impl<'a> Renderer<'a> {
                         }
                         Some(result) => {
                             buffer[it.0 * 4..(it.0 * 4) + 4].copy_from_slice(&[
-                                result.x as u8,
-                                result.y as u8,
-                                result.z as u8,
-                                result.w as u8,
+                                (result.x * 255.) as u8,
+                                (result.y * 255.) as u8,
+                                (result.z * 255.) as u8,
+                                (result.w * 255.) as u8,
                             ]);
                         }
                     });

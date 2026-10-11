@@ -1,9 +1,10 @@
-use glam::{Vec3A, Vec4};
+use glam::Vec3A;
 
 use crate::entity::actor::{ActorTrait, DirectionalActorTrait};
-use crate::entity::geometry::ray::Ray;
+use crate::entity::geometry::Geometry;
+use crate::entity::geometry::ray::{Ray, RayType};
 use crate::entity::geometry::sphere::Sphere;
-use crate::entity::geometry::{Geometry, RayType};
+use crate::entity::rendering::material::MaterialType;
 
 /// Structure holding a given light's representation.
 pub struct Light {
@@ -19,9 +20,9 @@ impl std::ops::Deref for Light {
 }
 
 impl Light {
-    pub fn new(position: &Vec3A, direction: &Vec3A, radius: f32, color: Vec4) -> Self {
+    pub fn new(position: &Vec3A, direction: &Vec3A, radius: f32, material: &MaterialType) -> Self {
         Self {
-            geometry: Sphere::new(position, radius, color),
+            geometry: Sphere::new(position, radius, material),
             direction: *direction,
         }
     }
@@ -29,7 +30,7 @@ impl Light {
 
 impl ActorTrait for Light {
     fn get_position(&self) -> Vec3A {
-        self.geometry.get_position()
+        self.actor.get_position()
     }
 }
 
@@ -40,16 +41,12 @@ impl DirectionalActorTrait for Light {
 }
 
 impl Geometry for Light {
-    fn get_surface_normal(&self, point: &Vec3A) -> Vec3A {
-        self.geometry.get_surface_normal(point)
-    }
-
-    fn get_material(&self) -> &super::material::MaterialType {
-        self.geometry.get_material()
-    }
-
     /// Render the light object as a sphere, mostly for scene's debugging purpose.
     fn intersect(&self, ray: &Ray, ray_type: &RayType) -> Option<(f32, Vec3A)> {
         self.geometry.intersect(ray, ray_type)
+    }
+
+    fn get_surface_normal(&self, point: &Vec3A) -> Vec3A {
+        self.geometry.get_surface_normal(point)
     }
 }

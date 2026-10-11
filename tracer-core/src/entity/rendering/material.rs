@@ -1,13 +1,14 @@
-use glam::{Vec3A, Vec4};
+use glam::{FloatExt, Vec3A, Vec4};
 
 use crate::entity::{
     actor::{ActorTrait, DirectionalActorTrait},
-    geometry::{RayType, ray::Ray},
-    rendering::light::Light,
-    scene::{Renderable, Scene},
+    geometry::ray::{Ray, RayType},
+    rendering::{Renderable, light::Light},
+    scene::Scene,
 };
 
 pub trait MaterialTrait {
+    #[allow(clippy::too_many_arguments)]
     fn calculate_illumination(
         &self,
         scene: &Scene,
@@ -15,6 +16,7 @@ pub trait MaterialTrait {
         ray: &Ray,
         light: &Light,
         light_ray: &Ray,
+        shadow_coef: &f32,
         start_color: &Vec4,
         current_depth: &usize,
     ) -> Vec4;
@@ -27,8 +29,10 @@ pub struct ColorMaterial {
     color: Vec4,
 }
 
-pub trait ColorMaterialTrait {
-    fn get_color(&self) -> Vec4;
+impl ColorMaterial {
+    pub fn new(color: Vec4) -> Self {
+        Self { color }
+    }
 }
 
 impl MaterialTrait for ColorMaterial {
@@ -39,30 +43,11 @@ impl MaterialTrait for ColorMaterial {
         _ray: &Ray,
         _light: &Light,
         _light_ray: &Ray,
-        start_color: &Vec4,
+        _shadow_coef: &f32,
+        _start_color: &Vec4,
         _current_depth: &usize,
     ) -> Vec4 {
-        start_color * self.color
-    }
-}
-
-impl ColorMaterialTrait for ColorMaterial {
-    fn get_color(&self) -> Vec4 {
         self.color
-    }
-}
-
-impl Default for ColorMaterial {
-    fn default() -> Self {
-        Self {
-            color: Vec4::new(127., 127., 127., 255.),
-        }
-    }
-}
-
-impl ColorMaterial {
-    pub fn new(color: &Vec4) -> Self {
-        Self { color: *color }
     }
 }
 
@@ -73,8 +58,10 @@ pub struct DiffuseMaterial {
     diffuse: f32,
 }
 
-pub trait DiffuseMaterialTrait {
-    fn get_diffuse_coef(&self) -> f32;
+impl DiffuseMaterial {
+    pub fn new(diffuse: f32) -> Self {
+        Self { diffuse }
+    }
 }
 
 impl MaterialTrait for DiffuseMaterial {
@@ -85,30 +72,13 @@ impl MaterialTrait for DiffuseMaterial {
         _ray: &Ray,
         _light: &Light,
         light_ray: &Ray,
+        shadow_coef: &f32,
         start_color: &Vec4,
         _current_depth: &usize,
     ) -> Vec4 {
         let dot = light_ray.get_direction().dot(*surface_normal);
         let diffuse_vec = start_color * f32::max(0., dot);
-        diffuse_vec * self.diffuse
-    }
-}
-
-impl DiffuseMaterialTrait for DiffuseMaterial {
-    fn get_diffuse_coef(&self) -> f32 {
-        self.diffuse
-    }
-}
-
-impl Default for DiffuseMaterial {
-    fn default() -> Self {
-        Self { diffuse: 1. }
-    }
-}
-
-impl DiffuseMaterial {
-    pub fn new(diffuse: f32) -> Self {
-        Self { diffuse: diffuse }
+        ((start_color * diffuse_vec * self.diffuse) * shadow_coef).clamp(Vec4::ZERO, Vec4::ONE)
     }
 }
 
@@ -120,9 +90,13 @@ pub struct SpecularMaterial {
     shininess: f32,
 }
 
-pub trait SpecularMaterialTrait {
-    fn get_specular_coef(&self) -> f32;
-    fn get_shininess_coef(&self) -> f32;
+impl SpecularMaterial {
+    pub fn new(specular_reflection_coef: f32, shininess: f32) -> Self {
+        Self {
+            specular_reflection_coef,
+            shininess,
+        }
+    }
 }
 
 impl MaterialTrait for SpecularMaterial {
@@ -130,55 +104,21 @@ impl MaterialTrait for SpecularMaterial {
         &self,
         _scene: &Scene,
         surface_normal: &Vec3A,
-        _ray: &Ray,
-        light: &Light,
+        ray: &Ray,
+        _light: &Light,
         light_ray: &Ray,
+        _shadow_coef: &f32,
         start_color: &Vec4,
         _current_depth: &usize,
     ) -> Vec4 {
-        let income_vector = light_ray.get_position() - light.get_position();
-        let income_vector_n = income_vector.normalize();
+        let distance = light_ray.get_direction().length();
+        let light_dir = light_ray.get_direction() / distance;
+        let half_vector = (light_dir + ray.get_direction()).normalize();
+        let ndoth = surface_normal.dot(half_vector);
+        let specular_intensity = ndoth.saturate().powf(self.shininess);
 
-        let my_dot = income_vector_n.dot(*surface_normal);
-        let my_len = 2. * my_dot;
-
-        let temp_normal = surface_normal * my_len;
-        let reflect_vector = temp_normal + income_vector_n;
-        let reflect_vector_n = reflect_vector.normalize();
-
-        let mut my_spec = f32::max(reflect_vector_n.dot(income_vector_n), 0.);
-        my_spec = my_spec.powf(5.);
-
-        let specular_color = Vec4::ONE * my_spec;
-        (start_color + specular_color * self.specular_reflection_coef)
-            .clamp(Vec4::ZERO, Vec4::new(255., 255., 255., 255.))
-    }
-}
-
-impl SpecularMaterialTrait for SpecularMaterial {
-    fn get_specular_coef(&self) -> f32 {
-        self.specular_reflection_coef
-    }
-    fn get_shininess_coef(&self) -> f32 {
-        self.shininess
-    }
-}
-
-impl Default for SpecularMaterial {
-    fn default() -> Self {
-        Self {
-            shininess: 1.,
-            specular_reflection_coef: 1.,
-        }
-    }
-}
-
-impl SpecularMaterial {
-    pub fn new(specular_coef: f32, shininess: f32) -> Self {
-        Self {
-            specular_reflection_coef: specular_coef,
-            shininess: shininess,
-        }
+        (start_color + specular_intensity * Vec4::ONE * self.specular_reflection_coef)
+            .clamp(Vec4::ZERO, Vec4::ONE)
     }
 }
 
@@ -190,17 +130,12 @@ pub struct ReflectiveMaterial {
     max_depth: usize,
 }
 
-pub trait ReflectiveMaterialTrait {
-    fn get_reflection_coef(&self) -> f32;
-    fn get_max_depth(&self) -> usize;
-}
-
-impl ReflectiveMaterialTrait for ReflectiveMaterial {
-    fn get_reflection_coef(&self) -> f32 {
-        self.reflect_coef
-    }
-    fn get_max_depth(&self) -> usize {
-        self.max_depth
+impl ReflectiveMaterial {
+    pub fn new(reflect_coef: f32, max_depth: usize) -> Self {
+        Self {
+            reflect_coef,
+            max_depth,
+        }
     }
 }
 
@@ -212,45 +147,33 @@ impl MaterialTrait for ReflectiveMaterial {
         ray: &Ray,
         light: &Light,
         light_ray: &Ray,
+        _shadow_coef: &f32,
         start_color: &Vec4,
         current_depth: &usize,
     ) -> Vec4 {
         match *current_depth {
             x if x >= self.max_depth => *start_color,
             _ => {
-                let direction = (ray.get_direction()
-                    - surface_normal * 2. * ray.get_direction().dot(*surface_normal))
-                .normalize();
-                let start = light_ray.get_position() + 0.0001 * surface_normal;
-                let relfection_ray = Ray::new(&start, &direction);
-                let color = scene
-                    .render(
-                        &relfection_ray,
-                        &light,
-                        &RayType::Camera,
-                        &(current_depth + 1),
-                    )
-                    .unwrap();
-                start_color + self.reflect_coef * (color / (*current_depth as f32))
+                // let direction = (ray.get_direction()
+                //     - surface_normal * 2. * surface_normal.dot(ray.get_direction()))
+                // .normalize();
+
+                let relfection_ray =
+                    Ray::new(&light_ray.get_position(), &-light_ray.get_direction());
+                let color = scene.render(
+                    &relfection_ray,
+                    light,
+                    &RayType::Camera,
+                    &(current_depth + 1),
+                );
+
+                match color {
+                    None => *start_color,
+                    Some(color) => {
+                        (start_color + self.reflect_coef * color).clamp(Vec4::ZERO, Vec4::ONE)
+                    }
+                }
             }
-        }
-    }
-}
-
-impl Default for ReflectiveMaterial {
-    fn default() -> Self {
-        Self {
-            reflect_coef: 1.,
-            max_depth: 1,
-        }
-    }
-}
-
-impl ReflectiveMaterial {
-    pub fn new(reflect_coef: f32, max_depth: usize) -> Self {
-        Self {
-            reflect_coef: reflect_coef,
-            max_depth: max_depth,
         }
     }
 }
@@ -259,36 +182,7 @@ impl ReflectiveMaterial {
 
 #[derive(Clone)]
 pub struct MaterialMixer {
-    materials: Vec<MaterialType>,
-}
-
-impl MaterialTrait for MaterialMixer {
-    fn calculate_illumination(
-        &self,
-        scene: &Scene,
-        surface_normal: &Vec3A,
-        ray: &Ray,
-        light: &Light,
-        light_ray: &Ray,
-        start_color: &Vec4,
-        current_depth: &usize,
-    ) -> Vec4 {
-        self.materials
-            .iter()
-            .map(|x| {
-                x.calculate_illumination(
-                    scene,
-                    surface_normal,
-                    ray,
-                    light,
-                    light_ray,
-                    start_color,
-                    current_depth,
-                )
-            })
-            .fold(Vec4::ZERO, |acc, ray_color| acc + ray_color)
-            / self.materials.len() as f32
-    }
+    pub materials: Vec<MaterialType>,
 }
 
 impl Default for MaterialMixer {
@@ -299,9 +193,33 @@ impl Default for MaterialMixer {
     }
 }
 
-impl MaterialMixer {
-    pub fn add_material(&mut self, material: &MaterialType) {
-        self.materials.push(material.clone());
+impl MaterialTrait for MaterialMixer {
+    fn calculate_illumination(
+        &self,
+        scene: &Scene,
+        surface_normal: &Vec3A,
+        ray: &Ray,
+        light: &Light,
+        light_ray: &Ray,
+        shadow_coef: &f32,
+        start_color: &Vec4,
+        current_depth: &usize,
+    ) -> Vec4 {
+        let mut result_color = *start_color;
+
+        self.materials.iter().for_each(|x| {
+            result_color = x.calculate_illumination(
+                scene,
+                surface_normal,
+                ray,
+                light,
+                light_ray,
+                shadow_coef,
+                &result_color,
+                current_depth,
+            )
+        });
+        result_color.clamp(Vec4::ZERO, Vec4::ONE)
     }
 }
 
@@ -313,7 +231,7 @@ pub enum MaterialType {
     Diffuse(DiffuseMaterial),
     Specular(SpecularMaterial),
     Reflective(ReflectiveMaterial),
-    Mixed(MaterialMixer),
+    Mixer(MaterialMixer),
 }
 
 impl MaterialTrait for MaterialType {
@@ -324,6 +242,7 @@ impl MaterialTrait for MaterialType {
         ray: &Ray,
         light: &Light,
         light_ray: &Ray,
+        _shadow_coef: &f32,
         start_color: &Vec4,
         current_depth: &usize,
     ) -> Vec4 {
@@ -334,6 +253,7 @@ impl MaterialTrait for MaterialType {
                 ray,
                 light,
                 light_ray,
+                _shadow_coef,
                 start_color,
                 current_depth,
             ),
@@ -343,6 +263,7 @@ impl MaterialTrait for MaterialType {
                 ray,
                 light,
                 light_ray,
+                _shadow_coef,
                 start_color,
                 current_depth,
             ),
@@ -352,6 +273,7 @@ impl MaterialTrait for MaterialType {
                 ray,
                 light,
                 light_ray,
+                _shadow_coef,
                 start_color,
                 current_depth,
             ),
@@ -361,18 +283,24 @@ impl MaterialTrait for MaterialType {
                 ray,
                 light,
                 light_ray,
+                _shadow_coef,
                 start_color,
                 current_depth,
             ),
-            MaterialType::Mixed(i) => i.calculate_illumination(
+            MaterialType::Mixer(i) => i.calculate_illumination(
                 scene,
                 surface_normal,
                 ray,
                 light,
                 light_ray,
+                _shadow_coef,
                 start_color,
                 current_depth,
             ),
         }
     }
+}
+
+pub trait MaterialBound {
+    fn get_material(&self) -> &MaterialType;
 }
