@@ -2,7 +2,6 @@ use glam::{Vec3A, Vec4};
 
 use renderer::Renderer;
 use tracer_core::entity::geometry::GeometryImpl;
-use tracer_core::entity::geometry::plane::Plane;
 use tracer_core::entity::geometry::sphere::Sphere;
 use tracer_core::entity::rendering::light::Light;
 use tracer_core::entity::scene::Scene;
@@ -35,19 +34,19 @@ pub fn main() {
     let light = Light::new(
         &Vec3A::new(200., 200., 50.),
         &Vec3A::new(0., -1., 0.),
-        50.,
-        Vec4::new(0., 255., 255., 1.),
+        20.,
+        Vec4::new(255., 255., 255., 1.),
     );
 
     let sphere: Sphere = Sphere::new(&Vec3A::new(0., 0., 0.), 50., Vec4::new(0., 255., 0., 1.));
     scene.renderables.push(GeometryImpl::Sphere(sphere));
 
-    let plane: Plane = Plane::new(
+    let sphere: Sphere = Sphere::new(
         &Vec3A::new(0., -100., 0.),
-        &Vec3A::new(0., 1., 1.),
-        &Vec4::new(0., 0., 255., 1.),
+        20.,
+        Vec4::new(0., 0., 255., 1.),
     );
-    scene.renderables.push(GeometryImpl::Plane(plane));
+    scene.renderables.push(GeometryImpl::Sphere(sphere));
 
     loop {
         #[cfg(feature = "hyperfine")]

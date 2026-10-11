@@ -1,10 +1,10 @@
 use glam::{Vec3A, Vec4};
 
-use tracer_core::entity::geometry::GeometryImpl;
+use tracer_core::entity::geometry::{Geometry, GeometryImpl};
 use tracer_core::entity::geometry::plane::Plane;
 use tracer_core::entity::geometry::sphere::Sphere;
 use tracer_core::entity::rendering::light::Light;
-use tracer_core::entity::rendering::material::{DiffuseMaterial, MaterialType};
+use tracer_core::entity::rendering::material::{self, DiffuseMaterial, MaterialMixer, MaterialType};
 use tracer_core::entity::scene::Scene;
 use tracer_core::rendering::ray_emitter::RayEmitter;
 use tracer_core::rendering::renderer::Renderer;
@@ -44,10 +44,17 @@ pub fn main() {
     let sphere: Sphere = Sphere::new(&Vec3A::new(0., 0., 0.), 50., Vec4::new(0., 255., 0., 1.));
     scene.renderables.push(GeometryImpl::Sphere(sphere));
 
+    let mut mixer = MaterialMixer::default();
+    let mat = &MaterialType::Mixed(&mixer);
+
+    mixer.add_material(
+       &MaterialType::Diffuse(DiffuseMaterial::new(1.)) 
+    );
+
     let plane: Plane = Plane::new(
         &Vec3A::new(0., -100., 0.),
         &Vec3A::new(0., 1., 1.),
-        &MaterialType::Diffuse(DiffuseMaterial::new(1.)),
+        &mat
     );
     scene.renderables.push(GeometryImpl::Plane(plane));
 

@@ -173,6 +173,15 @@ impl Default for SpecularMaterial {
     }
 }
 
+impl SpecularMaterial {
+    pub fn new(specular_coef: f32, shininess: f32) -> Self {
+        Self {
+            specular_reflection_coef: specular_coef,
+            shininess: shininess,
+        }
+    }
+}
+
 // ########################################
 
 #[derive(Clone)]
@@ -237,6 +246,15 @@ impl Default for ReflectiveMaterial {
     }
 }
 
+impl ReflectiveMaterial {
+    pub fn new(reflect_coef: f32, max_depth: usize) -> Self {
+        Self {
+            reflect_coef: reflect_coef,
+            max_depth: max_depth,
+        }
+    }
+}
+
 // ########################################
 
 #[derive(Clone)]
@@ -278,6 +296,12 @@ impl Default for MaterialMixer {
         Self {
             materials: Vec::<MaterialType>::with_capacity(1),
         }
+    }
+}
+
+impl MaterialMixer {
+    pub fn add_material(&mut self, material: &MaterialType) {
+        self.materials.push(material.clone());
     }
 }
 
